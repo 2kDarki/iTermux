@@ -10,6 +10,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         val runtime = iTermux.initialize(this)
+        val session = iTermux.createSession(runtime, sessionId = "sample")
         val message = buildString {
             append("internal-termux sample host\n\n")
             append("Initialized host-owned runtime.\n")
@@ -33,6 +34,12 @@ class MainActivity : Activity() {
             append(runtime.isBootstrapRequired)
             append("\nserviceExecuteAction: ")
             append(runtime.identity.serviceExecuteAction)
+            append("\nsessionId: ")
+            append(session.id)
+            append("\nsessionMode: ")
+            append(session.mode)
+            append("\nsessionExecutable: ")
+            append(session.shellSpec.executable)
             append("\nPATH: ")
             append(runtime.environment["PATH"])
         }

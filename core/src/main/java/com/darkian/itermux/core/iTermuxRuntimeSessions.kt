@@ -58,3 +58,73 @@ fun iTermuxRuntime.fileCommand(
         failSafe = failSafe,
     )
 }
+
+fun iTermuxRuntime.createSession(
+    sessionId: String,
+    shellBinary: String = "sh",
+    baseEnv: Map<String, String> = emptyMap(),
+    extraEnv: Map<String, String> = emptyMap(),
+    workingDirectory: String = defaultWorkingDirectory,
+    failSafe: Boolean = false,
+): iTermuxSession {
+    return iTermuxSession(
+        id = sessionId,
+        kind = iTermuxSessionKind.NATIVE,
+        mode = iTermuxSessionMode.LOGIN_SHELL,
+        shellSpec = loginShell(
+            shellBinary = shellBinary,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            workingDirectory = workingDirectory,
+            failSafe = failSafe,
+        ),
+    )
+}
+
+fun iTermuxRuntime.createCommandSession(
+    sessionId: String,
+    executable: String,
+    arguments: List<String>,
+    baseEnv: Map<String, String> = emptyMap(),
+    extraEnv: Map<String, String> = emptyMap(),
+    workingDirectory: String = defaultWorkingDirectory,
+    failSafe: Boolean = false,
+): iTermuxSession {
+    return iTermuxSession(
+        id = sessionId,
+        kind = iTermuxSessionKind.NATIVE,
+        mode = iTermuxSessionMode.COMMAND,
+        shellSpec = command(
+            executable = executable,
+            arguments = arguments,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            workingDirectory = workingDirectory,
+            failSafe = failSafe,
+        ),
+    )
+}
+
+fun iTermuxRuntime.createFileSession(
+    sessionId: String,
+    executable: String,
+    arguments: List<String>,
+    baseEnv: Map<String, String> = emptyMap(),
+    extraEnv: Map<String, String> = emptyMap(),
+    workingDirectory: String = defaultWorkingDirectory,
+    failSafe: Boolean = false,
+): iTermuxSession {
+    return iTermuxSession(
+        id = sessionId,
+        kind = iTermuxSessionKind.NATIVE,
+        mode = iTermuxSessionMode.FILE_COMMAND,
+        shellSpec = fileCommand(
+            executable = executable,
+            arguments = arguments,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            workingDirectory = workingDirectory,
+            failSafe = failSafe,
+        ),
+    )
+}

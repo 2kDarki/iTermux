@@ -25,6 +25,7 @@
 - [x] Add a host-derived runtime identity seam for package-based authorities, actions, classes, and plugin package names.
 - [x] Tag the current core runtime files with the merge marker comment required for upstream-derived work.
 - [x] Add a serial namespace verification script for legacy `com.termux` and hardcoded prefix literals in the active project tree.
+- [x] Add a host-facing native session object and default `iTermux.createSession()` entry point on top of the shell-spec builders.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -125,6 +126,11 @@
   `tools/verify-no-termux-literals.ps1` enforces both the absence of legacy
   `com.termux`/`/data/data/com.termux` literals in the live Android project and
   the presence of those markers across the current runtime seam.
+- The embed surface is now one step closer to the roadmap target: callers can
+  create a first-class native session object with stable session metadata
+  instead of only receiving raw shell specs, and the default
+  `iTermux.createSession()` facade now maps directly onto that native session
+  abstraction.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.

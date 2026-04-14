@@ -43,4 +43,23 @@ object iTermux {
             failSafe = failSafe,
         )
     }
+
+    fun createSession(
+        runtime: iTermuxRuntime,
+        sessionId: String,
+        shellBinary: String = "sh",
+        baseEnv: Map<String, String> = emptyMap(),
+        extraEnv: Map<String, String> = emptyMap(),
+        workingDirectory: String = runtime.defaultWorkingDirectory,
+        failSafe: Boolean = false,
+    ): iTermuxSession {
+        return runtime.createSession(
+            sessionId = sessionId,
+            shellBinary = shellBinary,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            workingDirectory = workingDirectory,
+            failSafe = failSafe,
+        )
+    }
 }
