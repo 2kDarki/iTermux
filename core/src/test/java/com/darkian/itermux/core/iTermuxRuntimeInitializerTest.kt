@@ -19,6 +19,10 @@ class iTermuxRuntimeInitializerTest {
 
         assertEquals("$filesDir/usr", runtime.paths.prefixDir)
         assertEquals("$filesDir/home", runtime.paths.homeDir)
+        assertEquals("com.darkian.host", runtime.identity.packageName)
+        assertEquals("com.darkian.host.files", runtime.identity.filesAuthority)
+        assertEquals("com.darkian.host.service_execute", runtime.identity.serviceExecuteAction)
+        assertEquals("com.darkian.host.widget", runtime.identity.pluginPackageNames.widget)
         assertEquals("$filesDir/usr/bin", runtime.environment["PATH"])
         assertEquals(runtime.paths.homeDir, runtime.defaultWorkingDirectory)
         assertNull(runtime.selectedPropertiesFile)

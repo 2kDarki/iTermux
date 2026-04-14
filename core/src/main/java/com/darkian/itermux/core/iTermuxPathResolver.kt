@@ -1,5 +1,7 @@
 package com.darkian.itermux.core
 
+// INTERNAL-TERMUX MODIFIED - merge carefully
+
 /**
  * Resolves the canonical runtime directories from a host app's files dir.
  */
@@ -9,8 +11,23 @@ object iTermuxPathResolver {
         hostPackageName: String,
         config: iTermuxConfig = iTermuxConfig(),
     ): iTermuxPaths {
+        val identity = iTermuxIdentityResolver.resolve(
+            hostPackageName = hostPackageName,
+            config = config,
+        )
+        return resolve(
+            filesDir = filesDir,
+            identity = identity,
+            config = config,
+        )
+    }
+
+    fun resolve(
+        filesDir: String,
+        identity: iTermuxIdentity,
+        config: iTermuxConfig = iTermuxConfig(),
+    ): iTermuxPaths {
         val normalizedFilesDir = filesDir.trimEnd('/', '\\')
-        val packageName = config.hostPackageNameOverride ?: hostPackageName
 
         val prefixDir = normalizedFilesDir.child(config.usrDirName)
         val homeDir = normalizedFilesDir.child(config.homeDirName)
@@ -37,7 +54,7 @@ object iTermuxPathResolver {
             propertiesSecondaryFile = configHomeDir.child("termux.properties"),
             envFile = configPrefixDir.child("termux.env"),
             envTempFile = configPrefixDir.child("termux.env.tmp"),
-            termuxAmSocketFile = appsDir.child("$packageName/termux-am/am.sock"),
+            termuxAmSocketFile = appsDir.child("${identity.packageName}/termux-am/am.sock"),
         )
     }
 

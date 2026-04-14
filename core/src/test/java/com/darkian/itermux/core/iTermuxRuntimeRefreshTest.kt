@@ -21,6 +21,8 @@ class iTermuxRuntimeRefreshTest {
 
         val refreshed = iTermuxRuntimeInitializer.refresh(runtime.paths)
 
+        assertEquals("com.darkian.host", refreshed.identity.packageName)
+        assertEquals("com.darkian.host.files", refreshed.identity.filesAuthority)
         assertEquals(
             File(runtime.paths.propertiesSecondaryFile).absolutePath,
             refreshed.selectedPropertiesFile,
@@ -39,6 +41,7 @@ class iTermuxRuntimeRefreshTest {
 
         val refreshed = iTermuxRuntimeInitializer.refresh(runtime.paths)
 
+        assertEquals("com.darkian.host", refreshed.identity.packageName)
         assertFalse(refreshed.isBootstrapRequired)
     }
 }

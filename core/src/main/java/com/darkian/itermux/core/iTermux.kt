@@ -2,6 +2,8 @@ package com.darkian.itermux.core
 
 import android.content.Context
 
+// INTERNAL-TERMUX MODIFIED - merge carefully
+
 /**
  * Public facade for the embeddable host-owned runtime.
  *
@@ -34,6 +36,7 @@ object iTermux {
         failSafe: Boolean = false,
     ): iTermuxRuntime {
         return iTermuxRuntimeInitializer.refresh(
+            identity = runtime.identity,
             paths = runtime.paths,
             baseEnv = baseEnv,
             extraEnv = extraEnv,

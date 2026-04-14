@@ -1,5 +1,7 @@
 package com.darkian.itermux.core
 
+// INTERNAL-TERMUX MODIFIED - merge carefully
+
 /**
  * Builds the initialized runtime state from the host-owned files directory.
  */
@@ -12,12 +14,17 @@ object iTermuxRuntimeInitializer {
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
     ): iTermuxRuntime {
-        val paths = iTermuxPathResolver.resolve(
-            filesDir = filesDir,
+        val identity = iTermuxIdentityResolver.resolve(
             hostPackageName = hostPackageName,
             config = config,
         )
+        val paths = iTermuxPathResolver.resolve(
+            filesDir = filesDir,
+            identity = identity,
+            config = config,
+        )
         return refresh(
+            identity = identity,
             paths = paths,
             baseEnv = baseEnv,
             extraEnv = extraEnv,
@@ -26,6 +33,22 @@ object iTermuxRuntimeInitializer {
     }
 
     fun refresh(
+        paths: iTermuxPaths,
+        baseEnv: Map<String, String> = emptyMap(),
+        extraEnv: Map<String, String> = emptyMap(),
+        failSafe: Boolean = false,
+    ): iTermuxRuntime {
+        return refresh(
+            identity = iTermuxIdentityResolver.resolve(paths),
+            paths = paths,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            failSafe = failSafe,
+        )
+    }
+
+    fun refresh(
+        identity: iTermuxIdentity,
         paths: iTermuxPaths,
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
@@ -46,6 +69,7 @@ object iTermuxRuntimeInitializer {
         val isBootstrapRequired = iTermuxPrefixState.isBootstrapRequired(paths)
 
         return iTermuxRuntime(
+            identity = identity,
             paths = paths,
             environment = environment,
             properties = properties,
