@@ -1,0 +1,9 @@
+# Minimal Termux package set supported by the embedded runtime.
+# This list stays intentionally small and is driven by DDS runtime needs.
+
+bash
+coreutils
+git
+curl
+ca-certificates
+xz-utils

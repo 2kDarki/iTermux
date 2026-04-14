@@ -67,7 +67,7 @@
 
 ### Phase 4: Controlled bootstrap
 
-- [ ] Define `supported-packages.txt`.
+- [x] Define `supported-packages.txt`.
 - [ ] Build and integrate the minimal bootstrap payload.
 - [ ] Verify offline cold-start initialization via the library API.
 
@@ -131,6 +131,10 @@
   instead of only receiving raw shell specs, and the default
   `iTermux.createSession()` facade now maps directly onto that native session
   abstraction.
+- `supported-packages.txt` now exists and starts from the smallest package set
+  currently justified by DDS-side runtime behavior: a shell, core userland,
+  git, TLS certificates, HTTP fetch support, and `xz` handling for compressed
+  payloads.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.
