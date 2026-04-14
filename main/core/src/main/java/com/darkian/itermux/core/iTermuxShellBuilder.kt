@@ -9,7 +9,7 @@ object iTermuxShellBuilder {
         shellBinary: String = "sh",
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
-        workingDirectory: String = iTermuxWorkingDirectory.resolve(runtime.paths, runtime.properties),
+        workingDirectory: String = runtime.defaultWorkingDirectory,
         failSafe: Boolean = false,
     ): iTermuxShellSpec {
         return loginShell(
@@ -49,7 +49,7 @@ object iTermuxShellBuilder {
         arguments: List<String>,
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
-        workingDirectory: String = iTermuxWorkingDirectory.resolve(runtime.paths, runtime.properties),
+        workingDirectory: String = runtime.defaultWorkingDirectory,
         failSafe: Boolean = false,
     ): iTermuxShellSpec {
         return command(
@@ -91,7 +91,7 @@ object iTermuxShellBuilder {
         arguments: List<String>,
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
-        workingDirectory: String = iTermuxWorkingDirectory.resolve(runtime.paths, runtime.properties),
+        workingDirectory: String = runtime.defaultWorkingDirectory,
         failSafe: Boolean = false,
     ): iTermuxShellSpec {
         return fileCommand(

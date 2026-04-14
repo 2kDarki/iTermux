@@ -19,6 +19,7 @@
 - [x] Add a raw `termux.properties` file selection and loading seam with upstream-style precedence.
 - [x] Respect `default-working-directory` from `termux.properties` in runtime-backed shell defaults.
 - [x] Expose prefix bootstrap-readiness state from the initialized runtime.
+- [x] Surface selected properties file and resolved default working directory on the runtime object.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -100,6 +101,9 @@
 - The runtime now exposes whether the prefix still needs bootstrap content,
   using an upstream-style emptiness check that ignores the generated env/tmp
   placeholders but treats real prefix files as installed runtime content.
+- The initialized runtime now also surfaces which properties file actually won
+  precedence and what default working directory was resolved from it, so callers
+  do not need to recompute that metadata from lower-level helpers.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.

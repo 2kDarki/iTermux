@@ -21,6 +21,12 @@ class MainActivity : Activity() {
             append(runtime.paths.homeDir)
             append("\nenvFile: ")
             append(runtime.paths.envFile)
+            append("\npropertiesFile: ")
+            append(runtime.selectedPropertiesFile ?: "<none>")
+            append("\ndefaultWorkingDirectory: ")
+            append(runtime.defaultWorkingDirectory)
+            append("\nbootstrapRequired: ")
+            append(runtime.isBootstrapRequired)
             append("\nPATH: ")
             append(runtime.environment["PATH"])
         }

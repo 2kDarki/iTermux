@@ -26,13 +26,17 @@ object iTermuxRuntimeInitializer {
 
         iTermuxRuntimeFiles.ensureLayout(paths)
         iTermuxRuntimeFiles.writeEnvironmentFile(paths, environment)
+        val selectedPropertiesFile = iTermuxProperties.findReadablePropertiesFile(paths)?.absolutePath
         val properties = iTermuxProperties.load(paths)
+        val defaultWorkingDirectory = iTermuxWorkingDirectory.resolve(paths, properties)
         val isBootstrapRequired = iTermuxPrefixState.isBootstrapRequired(paths)
 
         return iTermuxRuntime(
             paths = paths,
             environment = environment,
             properties = properties,
+            selectedPropertiesFile = selectedPropertiesFile,
+            defaultWorkingDirectory = defaultWorkingDirectory,
             isBootstrapRequired = isBootstrapRequired,
         )
     }
