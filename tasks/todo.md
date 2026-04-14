@@ -17,6 +17,7 @@
 - [x] Wire the shell builder to the shared environment profiles and interpreter-aware file command path.
 - [x] Turn `iTermux.initialize()` into a real runtime initializer that materializes layout and writes `termux.env`.
 - [x] Add a raw `termux.properties` file selection and loading seam with upstream-style precedence.
+- [x] Respect `default-working-directory` from `termux.properties` in runtime-backed shell defaults.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -92,6 +93,9 @@
 - The core module now also understands the `termux.properties` file locations
   and precedence order, which gives later runtime slices a reusable config seam
   without importing the heavier upstream app property stack yet.
+- Runtime-backed shell specs now respect the configured
+  `default-working-directory` property when it points at a readable directory,
+  otherwise they fall back safely to the host-owned home directory.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.

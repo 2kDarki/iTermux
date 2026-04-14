@@ -3,6 +3,7 @@ package com.darkian.itermux.core
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.nio.file.Files
+import java.io.File
 
 class iTermuxShellBuilderTest {
     @Test
@@ -99,5 +100,26 @@ class iTermuxShellBuilderTest {
         assertEquals("/app/files/usr/bin/sh", spec.executable)
         assertEquals(listOf(scriptFile.absolutePath, "arg1"), spec.arguments)
         assertEquals("/app/files/home", spec.workingDirectory)
+    }
+
+    @Test
+    fun usesRuntimeConfiguredDefaultWorkingDirectory() {
+        val filesDir = Files.createTempDirectory("itermux-shell-builder").toFile().absolutePath
+        val homeDir = "$filesDir/home"
+        val configuredDirectory = File(homeDir, "workspace").apply { mkdirs() }
+        val configuredDirectoryPropertyValue = configuredDirectory.absolutePath.replace('\\', '/')
+        File("$homeDir/.termux").apply { mkdirs() }
+        File("$homeDir/.termux/termux.properties").writeText(
+            "default-working-directory=$configuredDirectoryPropertyValue\n",
+        )
+
+        val runtime = iTermuxRuntimeInitializer.initialize(
+            filesDir = filesDir,
+            hostPackageName = "com.darkian.itermux",
+        )
+
+        val spec = iTermuxShellBuilder.loginShell(runtime)
+
+        assertEquals(configuredDirectory.absolutePath, spec.workingDirectory)
     }
 }

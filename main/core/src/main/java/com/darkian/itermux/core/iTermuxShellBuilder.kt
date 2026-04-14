@@ -5,6 +5,24 @@ package com.darkian.itermux.core
  */
 object iTermuxShellBuilder {
     fun loginShell(
+        runtime: iTermuxRuntime,
+        shellBinary: String = "sh",
+        baseEnv: Map<String, String> = emptyMap(),
+        extraEnv: Map<String, String> = emptyMap(),
+        workingDirectory: String = iTermuxWorkingDirectory.resolve(runtime.paths, runtime.properties),
+        failSafe: Boolean = false,
+    ): iTermuxShellSpec {
+        return loginShell(
+            paths = runtime.paths,
+            shellBinary = shellBinary,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            workingDirectory = workingDirectory,
+            failSafe = failSafe,
+        )
+    }
+
+    fun loginShell(
         paths: iTermuxPaths,
         shellBinary: String = "sh",
         baseEnv: Map<String, String> = emptyMap(),
@@ -22,6 +40,26 @@ object iTermuxShellBuilder {
                 extraEnv = extraEnv,
                 failSafe = failSafe,
             ),
+        )
+    }
+
+    fun command(
+        runtime: iTermuxRuntime,
+        executable: String,
+        arguments: List<String>,
+        baseEnv: Map<String, String> = emptyMap(),
+        extraEnv: Map<String, String> = emptyMap(),
+        workingDirectory: String = iTermuxWorkingDirectory.resolve(runtime.paths, runtime.properties),
+        failSafe: Boolean = false,
+    ): iTermuxShellSpec {
+        return command(
+            paths = runtime.paths,
+            executable = executable,
+            arguments = arguments,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            workingDirectory = workingDirectory,
+            failSafe = failSafe,
         )
     }
 
@@ -44,6 +82,26 @@ object iTermuxShellBuilder {
                 extraEnv = extraEnv,
                 failSafe = failSafe,
             ),
+        )
+    }
+
+    fun fileCommand(
+        runtime: iTermuxRuntime,
+        executable: String,
+        arguments: List<String>,
+        baseEnv: Map<String, String> = emptyMap(),
+        extraEnv: Map<String, String> = emptyMap(),
+        workingDirectory: String = iTermuxWorkingDirectory.resolve(runtime.paths, runtime.properties),
+        failSafe: Boolean = false,
+    ): iTermuxShellSpec {
+        return fileCommand(
+            paths = runtime.paths,
+            executable = executable,
+            arguments = arguments,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            workingDirectory = workingDirectory,
+            failSafe = failSafe,
         )
     }
 
