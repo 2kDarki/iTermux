@@ -15,6 +15,7 @@
 - [x] Port fail-safe shell environment profiles and sourceable `.env` rendering from upstream shell environment behavior.
 - [x] Port interpreter-aware shell argument setup for ELF files, shebang scripts, and plain scripts.
 - [x] Wire the shell builder to the shared environment profiles and interpreter-aware file command path.
+- [x] Turn `iTermux.initialize()` into a real runtime initializer that materializes layout and writes `termux.env`.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -84,6 +85,9 @@
   list-based alias helpers, POSIX canonicalization, working-directory parent
   matching, fail-safe environment profiles, sourceable `.env` rendering, and
   interpreter-aware shell argument setup for script execution.
+- `iTermux.initialize()` now returns initialized runtime state instead of only
+  raw paths, and it materializes the host-owned layout plus the derived
+  `termux.env` file as part of initialization.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.

@@ -9,16 +9,20 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val runtimePaths = iTermux.initialize(this)
+        val runtime = iTermux.initialize(this)
         val message = buildString {
             append("internal-termux sample host\n\n")
-            append("This is scaffold-only for now.\n")
+            append("Initialized host-owned runtime.\n")
             append("filesDir: ")
-            append(runtimePaths.filesDir)
+            append(runtime.paths.filesDir)
             append("\nprefixDir: ")
-            append(runtimePaths.prefixDir)
+            append(runtime.paths.prefixDir)
             append("\nhomeDir: ")
-            append(runtimePaths.homeDir)
+            append(runtime.paths.homeDir)
+            append("\nenvFile: ")
+            append(runtime.paths.envFile)
+            append("\nPATH: ")
+            append(runtime.environment["PATH"])
         }
 
         setContentView(
