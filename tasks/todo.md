@@ -16,6 +16,7 @@
 - [x] Port interpreter-aware shell argument setup for ELF files, shebang scripts, and plain scripts.
 - [x] Wire the shell builder to the shared environment profiles and interpreter-aware file command path.
 - [x] Turn `iTermux.initialize()` into a real runtime initializer that materializes layout and writes `termux.env`.
+- [x] Add a raw `termux.properties` file selection and loading seam with upstream-style precedence.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -88,6 +89,9 @@
 - `iTermux.initialize()` now returns initialized runtime state instead of only
   raw paths, and it materializes the host-owned layout plus the derived
   `termux.env` file as part of initialization.
+- The core module now also understands the `termux.properties` file locations
+  and precedence order, which gives later runtime slices a reusable config seam
+  without importing the heavier upstream app property stack yet.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.
