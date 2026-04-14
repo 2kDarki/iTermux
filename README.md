@@ -1,8 +1,8 @@
-# internal-termux main
+# internal-termux
 
-This directory is the actual project root for the Android work. It is scaffolded
-from the Phase 0 audit, which means the structure is intentionally organized
-around the runtime seams instead of the upstream standalone app shell.
+This repo root is the Android project root for the fork. It is scaffolded from
+the Phase 0 audit, which means the structure is intentionally organized around
+the runtime seams instead of the upstream standalone app shell.
 
 ## Modules
 
@@ -20,10 +20,10 @@ Android package ownership follows the project convention:
 
 ## Notes
 
-- This scaffold does not claim the runtime is implemented yet.
+- This scaffold does not claim the full runtime is implemented yet.
 - The highest-risk seam remains prefix derivation and environment injection.
 - Standalone upstream activities and services are not copied into this skeleton.
 - The initial Gradle baseline is aligned to the current upstream toolchain where
   practical, while keeping the modules intentionally minimal.
-- The build skeleton is still a scaffold. Runtime extraction, bootstrap wiring,
-  and upstream code migration have not started yet.
+- The build skeleton is still early. Controlled bootstrap wiring and heavier
+  upstream code migration are still ahead.

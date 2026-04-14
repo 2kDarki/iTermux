@@ -7,6 +7,7 @@ Collaboration protocol for this thread
 5. You correct, and we brainstorm
 6. We agree, and implement
 7. Repeat
+8. Do not stop just because tests passed, builds passed, the tree is clean, or a commit was created. Those are continuation checkpoints unless I explicitly ask for a status stop.
 
 NB: This approach will undoubtably result in creating docs. So one rule to keep in mind for this: delete all stale and redundant docs (especially the ones that are just plans for already completed phases)
 

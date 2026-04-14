@@ -1,6 +1,6 @@
 # Internal Termux Phase 0 Audit-First Design
 
-> **Scope:** This spec covers only the first implementation slice for `internal-termux`: Phase 0 audit work plus the repository docs that make later phases safe. It intentionally excludes any Android skeleton work under `main/`.
+> **Scope:** This spec covers only the first implementation slice for `internal-termux`: Phase 0 audit work plus the repository docs that make later phases safe. It intentionally excludes any Android skeleton work in the future Android project area.
 
 ## Goal
 
@@ -10,7 +10,7 @@ Produce the surgery map and repo guardrails that will let later phases fork Term
 - `CONTRIBUTING.md`
 - `tasks/todo.md`
 
-`main/` remains empty by design until the audit reveals the real coupling points that should inform the library/module structure.
+The future Android project area remains empty by design until the audit reveals the real coupling points that should inform the library/module structure.
 
 ## Why This Slice Is First
 
@@ -20,7 +20,7 @@ This slice therefore treats audit work as a prerequisite for architecture, not a
 
 ## Rejected Approaches
 
-### 1. Audit and scaffold `main/` in the same slice
+### 1. Audit and scaffold the Android project in the same slice
 
 Rejected because it bakes assumptions into the future module structure before the audit is complete.
 
@@ -40,7 +40,7 @@ Complete a strict Phase 0 slice with three required outputs:
 2. `CONTRIBUTING.md` as the standing project rules for scope, tagging, and upstream hygiene.
 3. `tasks/todo.md` as the phase-by-phase execution tracker for the roadmap.
 
-No code or module scaffolding is created under `main/` during this slice.
+No code or module scaffolding is created in the future Android project area during this slice.
 Phase 1 must not start until these three outputs exist and the Phase 0 review notes are recorded.
 
 ## Audit Boundaries
@@ -109,7 +109,7 @@ This file should turn the roadmap into actionable tracked work, with:
 
 This slice is documentation-heavy, so verification is evidence-based rather than build-based:
 
-- confirm `main/` is still empty
+- confirm the future Android project area is still empty
 - confirm `AUDIT.md` inventories the discovered assumptions rather than summarizing vaguely
 - confirm `CONTRIBUTING.md` codifies the roadmap boundaries
 - confirm `tasks/todo.md` tracks the current slice and later phases
@@ -121,6 +121,6 @@ This slice is complete when:
 - `AUDIT.md` contains a complete first-pass inventory for the upstream sources relevant to the roadmap
 - `CONTRIBUTING.md` exists with scope boundaries and tagging rules
 - `tasks/todo.md` exists with Phase 0 marked and later phases queued
-- `main/` remains untouched
+- the future Android project area remains untouched
 - no Phase 1 scaffolding has started
 - the repo is ready for the next slice: Android skeleton work informed by the audit

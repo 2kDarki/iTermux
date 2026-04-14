@@ -1,3 +1,7 @@
 /upstream/termux-app/
 /upstream/termux-packages/
 /upstream/proot-distro/
+/.gradle/
+/build/
+**/build/
+/local.properties

@@ -11,7 +11,8 @@ there during this audit.
 
 ## Audit rules
 
-- `main/` stays empty until this audit and the repo guardrail docs are complete.
+- During the Phase 0 slice, the future Android project area stayed empty until
+  this audit and the repo guardrail docs were complete.
 - This inventory focuses on assumptions that materially affect prefix
   parameterization, package renaming, library conversion, bootstrap control,
   and future merge protection.
@@ -20,7 +21,8 @@ there during this audit.
 
 ## Current repo state
 
-- `main/` is intentionally empty after this slice.
+- At the end of the Phase 0 slice, the future Android project area was still
+  intentionally empty.
 - `upstream/termux-app` is the primary fork source.
 - `upstream/termux-packages` and `upstream/proot-distro` are reference inputs
   for bootstrap and future proot work.
@@ -65,7 +67,7 @@ rename or relocation work but do not each need bespoke design:
 | `upstream/termux-app/app/src/test/java/com/termux/**` | Tests assert `com.termux` package ownership. | Test suite will need the same rename pass as production code. | Phase 2 |
 | `upstream/termux-app/termux-shared/src/main/java/com/termux/shared/**` | Shared support library lives under `com.termux.shared`. | Forked shared utilities will need a project namespace strategy. | Phase 2 |
 | `upstream/termux-app/termux-shared/src/androidTest/java/com/termux/shared/**` | Android tests assert `com.termux.shared`. | Same rename burden as shared runtime code. | Phase 2 |
-| `upstream/termux-app/terminal-emulator` | Gradle namespace is `com.termux.emulator`; sources use `com.termux.terminal`. | These modules likely move into `main/core/` and must be namespaced deliberately. | Phase 3 |
+| `upstream/termux-app/terminal-emulator` | Gradle namespace is `com.termux.emulator`; sources use `com.termux.terminal`. | These modules likely move into the forked `core/` module and must be namespaced deliberately. | Phase 3 |
 | `upstream/termux-app/terminal-view` | Gradle namespace is `com.termux.view`; sources use `com.termux.view`. | Same as above; view module becomes part of the embeddable terminal surface. | Phase 3 |
 | `upstream/termux-app/termux-shared/build.gradle` | Publishing group includes `com.termux:termux-am-library` and `groupId = 'com.termux'`. | Maven/publishing identity is currently Termux-branded and unsuitable as-is for the fork. | Phase 2, Phase 6 |
 
@@ -183,7 +185,7 @@ starts:
 
 ## Implications for the next slice
 
-- Do not scaffold `main/` blindly around the current upstream Activity/Service
+- Do not scaffold the forked Android project blindly around the current upstream Activity/Service
   split. The audit shows that package identity, prefix resolution, bootstrap,
   and UI ownership are all intertwined.
 - The Android skeleton should be informed first by the `TermuxConstants` /

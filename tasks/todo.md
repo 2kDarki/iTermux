@@ -23,7 +23,7 @@
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
-## Completed slice: scaffold `main/` Android skeleton
+## Completed slice: scaffold the Android project root
 
 ## Completed slice: Phase 0 audit plus repo docs
 
@@ -35,7 +35,7 @@
 - [x] Record relevant reference notes from `upstream/termux-packages` and `upstream/proot-distro`.
 - [x] Write `AUDIT.md` as the surgery map for later phases.
 - [x] Write `CONTRIBUTING.md` with scope boundaries, tagging rules, and upstream hygiene.
-- [x] Verify `main/` is still empty after the slice.
+- [x] Verify the future Android project area is still empty after the slice.
 - [x] Add a short review section with findings and next-slice trigger.
 
 ## Roadmap queue
@@ -55,7 +55,7 @@
 
 ### Phase 3: Convert to a library module
 
-- [ ] Scaffold `main/core/` as an Android library informed by the audit.
+- [ ] Evolve `core/` as an Android library informed by the audit.
 - [ ] Remove or stub standalone launcher entry points.
 - [ ] Expose the embed API surface and verify it in `sample-app/`.
 
@@ -67,7 +67,7 @@
 
 ### Phase 5: proot plugin
 
-- [ ] Isolate proot support into `main/proot-plugin/`.
+- [ ] Isolate proot support into `proot-plugin/`.
 - [ ] Define the shared session abstraction for native and proot sessions.
 - [ ] Verify separate native and proot sessions through the same host API.
 
@@ -117,7 +117,7 @@
 
 ## Scaffold review
 
-- Scaffolded `main/` as a dedicated Android project root with `core`,
+- Scaffolded the repo root as a dedicated Android project with `core`,
   `proot-plugin`, `sample-app`, and `tools`, matching the target repo shape
   without copying the upstream standalone app shell.
 - Anchored the first placeholder API in `core` around runtime-owned path
@@ -139,7 +139,8 @@
   `TERMUX_PREFIX` and `/data/data/com.termux/...` assumptions, so Phase 4 and
   Phase 5 must be designed as controlled adaptations rather than direct imports.
 - Verification: `AUDIT.md`, `CONTRIBUTING.md`, `tasks/todo.md`, and
-  `tasks/lessons.md` exist, and `main/` remains empty.
-- Next-slice trigger: start scaffolding `main/` only after using the audit
+  `tasks/lessons.md` exist, and the future Android project area remained empty
+  during Phase 0.
+- Next-slice trigger: start scaffolding the Android project only after using the audit
   hotspots to define the Android library structure and first Phase 1 touch
   points, beginning with the prefix-derivation seam rather than the UI shell.

@@ -6,7 +6,8 @@
 into:
 
 - `upstream/` for clean reference clones only
-- `main/` for the actual forked project modules
+- the repo root for the actual forked project modules (`core/`, `proot-plugin/`,
+  `sample-app/`, `tools/`, Gradle files)
 
 Do not edit files under `upstream/`. Pull and diff there, but keep it as the
 reference point.
@@ -16,7 +17,7 @@ reference point.
 - Do not start a new roadmap phase until the current phase deliverables and
   verification notes are complete.
 - Phase 0 must be complete before any Android skeleton work is created in
-  `main/`.
+  the project root.
 - If a phase goes sideways, stop, re-scope, and update `tasks/todo.md` before
   continuing.
 
@@ -54,7 +55,7 @@ This is required for later merge-protection tooling.
   inputs only.
 - Never make project changes in the upstream clones.
 - When upstream changes are pulled, review them against tagged fork files
-  before merging any logic into `main/`.
+  before merging any logic into the project root modules.
 
 ## Change style
 
