@@ -8,3 +8,4 @@
 - Prefer the project-facing name `iTermux` for the internal runtime surface. The shorter name is the intended identity and should be used consistently in new code.
 - Follow the package convention `com.darkian.<product>` for Android namespaces and source packages. For this repo, use `com.darkian.itermux`.
 - Do not end the turn after a successful build or test run unless the user explicitly asked for a status update. Green verification is permission to continue, not a reporting boundary.
+- Do not end the turn after structural chores either. Flattening, adding remotes, updating docs, making commits, or reaching a clean tree are all continuation checkpoints unless the user explicitly asks for a stop or a real blocker appears.

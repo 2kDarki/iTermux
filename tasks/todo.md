@@ -21,6 +21,7 @@
 - [x] Expose prefix bootstrap-readiness state from the initialized runtime.
 - [x] Surface selected properties file and resolved default working directory on the runtime object.
 - [x] Add a runtime refresh path for re-reading properties and bootstrap state after disk changes.
+- [x] Add runtime-level session factories so callers can create shell specs directly from initialized runtime state.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -108,6 +109,10 @@
 - The public runtime surface can now be refreshed from existing paths after
   properties or prefix contents change, which gives later bootstrap and settings
   work a real reload lifecycle instead of forcing full re-initialization logic.
+- The initialized runtime now acts more like a real caller-facing API by
+  exposing direct login-shell, command, and file-command factories that reuse
+  the runtime's resolved defaults instead of making callers drop back to lower-
+  level builder entry points.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.
