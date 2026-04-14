@@ -20,6 +20,7 @@
 - [x] Respect `default-working-directory` from `termux.properties` in runtime-backed shell defaults.
 - [x] Expose prefix bootstrap-readiness state from the initialized runtime.
 - [x] Surface selected properties file and resolved default working directory on the runtime object.
+- [x] Add a runtime refresh path for re-reading properties and bootstrap state after disk changes.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -104,6 +105,9 @@
 - The initialized runtime now also surfaces which properties file actually won
   precedence and what default working directory was resolved from it, so callers
   do not need to recompute that metadata from lower-level helpers.
+- The public runtime surface can now be refreshed from existing paths after
+  properties or prefix contents change, which gives later bootstrap and settings
+  work a real reload lifecycle instead of forcing full re-initialization logic.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.

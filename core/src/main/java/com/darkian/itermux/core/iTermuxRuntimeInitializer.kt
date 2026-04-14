@@ -17,6 +17,20 @@ object iTermuxRuntimeInitializer {
             hostPackageName = hostPackageName,
             config = config,
         )
+        return refresh(
+            paths = paths,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            failSafe = failSafe,
+        )
+    }
+
+    fun refresh(
+        paths: iTermuxPaths,
+        baseEnv: Map<String, String> = emptyMap(),
+        extraEnv: Map<String, String> = emptyMap(),
+        failSafe: Boolean = false,
+    ): iTermuxRuntime {
         val environment = iTermuxEnvironment.build(
             paths = paths,
             baseEnv = baseEnv,

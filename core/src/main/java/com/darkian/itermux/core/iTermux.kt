@@ -26,4 +26,18 @@ object iTermux {
             failSafe = failSafe,
         )
     }
+
+    fun refresh(
+        runtime: iTermuxRuntime,
+        baseEnv: Map<String, String> = emptyMap(),
+        extraEnv: Map<String, String> = emptyMap(),
+        failSafe: Boolean = false,
+    ): iTermuxRuntime {
+        return iTermuxRuntimeInitializer.refresh(
+            paths = runtime.paths,
+            baseEnv = baseEnv,
+            extraEnv = extraEnv,
+            failSafe = failSafe,
+        )
+    }
 }
