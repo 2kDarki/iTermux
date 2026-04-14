@@ -1,4 +1,5 @@
 package com.darkian.itermux.core
+// INTERNAL-TERMUX MODIFIED - merge carefully
 
 /**
  * Builds the baseline shell environment from the canonical runtime paths.

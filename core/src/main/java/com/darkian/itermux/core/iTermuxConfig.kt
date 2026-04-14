@@ -1,4 +1,5 @@
 package com.darkian.itermux.core
+// INTERNAL-TERMUX MODIFIED - merge carefully
 
 /**
  * Configuration for the host-owned runtime layout inside app storage.

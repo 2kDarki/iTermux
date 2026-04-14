@@ -1,4 +1,5 @@
 package com.darkian.itermux.core
+// INTERNAL-TERMUX MODIFIED - merge carefully
 
 /**
  * Convenience session factories on initialized runtime state.

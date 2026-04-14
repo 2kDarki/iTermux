@@ -1,4 +1,5 @@
 package com.darkian.itermux.core
+// INTERNAL-TERMUX MODIFIED - merge carefully
 
 import java.nio.file.AtomicMoveNotSupportedException
 import java.nio.file.Files

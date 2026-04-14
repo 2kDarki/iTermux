@@ -1,4 +1,5 @@
 package com.darkian.itermux.core
+// INTERNAL-TERMUX MODIFIED - merge carefully
 
 /**
  * Helpers for converting between textual Termux-style aliases and concrete paths.

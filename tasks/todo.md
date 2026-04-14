@@ -23,6 +23,8 @@
 - [x] Add a runtime refresh path for re-reading properties and bootstrap state after disk changes.
 - [x] Add runtime-level session factories so callers can create shell specs directly from initialized runtime state.
 - [x] Add a host-derived runtime identity seam for package-based authorities, actions, classes, and plugin package names.
+- [x] Tag the current core runtime files with the merge marker comment required for upstream-derived work.
+- [x] Add a serial namespace verification script for legacy `com.termux` and hardcoded prefix literals in the active project tree.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -118,6 +120,11 @@
   upstream `TermuxConstants` package-name seam, covering authorities, class
   names, service/action strings, and plugin package names so Phase 2 renaming
   work has one source of truth instead of scattered string construction.
+- The active `core` runtime files are now tagged with the required
+  `INTERNAL-TERMUX MODIFIED - merge carefully` marker, and
+  `tools/verify-no-termux-literals.ps1` enforces both the absence of legacy
+  `com.termux`/`/data/data/com.termux` literals in the live Android project and
+  the presence of those markers across the current runtime seam.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.
