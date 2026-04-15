@@ -57,6 +57,22 @@ This is required for later merge-protection tooling.
 - When upstream changes are pulled, review them against tagged fork files
   before merging any logic into the project root modules.
 
+## Merge protection workflow
+
+1. Refresh the upstream mirror into a dedicated ref such as `upstream/main`.
+   If that ref is not available yet, pass explicit refs to the merge-check
+   script instead of guessing.
+2. Run `bash tools/merge-check.sh upstream/main HEAD` before merging upstream
+   logic into the project modules.
+3. Treat `SAFE` entries as untagged upstream changes, `REVIEW` entries as
+   tagged files that changed cleanly but still need human inspection, and
+   `CONFLICT` entries as tagged files with overlapping edits that must be
+   resolved deliberately.
+4. Keep the upstream clones untouched; only port the reviewed changes into the
+   real project modules after the script output has been inspected.
+5. See [docs/upstream-sync.md](docs/upstream-sync.md) for the step-by-step
+   procedure and ref conventions.
+
 ## Change style
 
 - Prefer the smallest change that moves the current roadmap phase forward.
