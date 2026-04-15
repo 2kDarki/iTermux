@@ -28,6 +28,7 @@
 - [x] Add a host-facing native session object and default `iTermux.createSession()` entry point on top of the shell-spec builders.
 - [x] Package `supported-packages.txt` into `core` assets and surface it on the initialized runtime.
 - [x] Add a sync guard so the root package list and packaged asset cannot silently drift apart.
+- [x] Expose offline bootstrap payload metadata on the initialized runtime so hosts can distinguish packaged payload state from prefix installation state.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -141,6 +142,10 @@
   `core` packages the same list as an asset, `iTermux` loads and exposes it on
   initialized runtime state, and `tools/verify-supported-packages-sync.ps1`
   guards the root file and packaged asset against drift.
+- The runtime now also exposes the expected bootstrap asset path and whether an
+  offline payload is actually packaged, which separates “prefix still needs
+  installation” from “the library ships a bootstrap payload ready to install”
+  ahead of real extraction logic.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.

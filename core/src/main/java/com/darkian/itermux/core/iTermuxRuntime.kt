@@ -10,6 +10,8 @@ data class iTermuxRuntime(
     val paths: iTermuxPaths,
     val environment: Map<String, String>,
     val supportedPackages: List<String>,
+    val bootstrapAssetPath: String,
+    val isBootstrapPayloadPackaged: Boolean,
     val properties: Map<String, String>,
     val selectedPropertiesFile: String?,
     val defaultWorkingDirectory: String,

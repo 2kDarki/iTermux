@@ -20,11 +20,18 @@ object iTermux {
         failSafe: Boolean = false,
     ): iTermuxRuntime {
         val supportedPackages = loadSupportedPackages(context)
+        val bootstrapAssetPath = config.bootstrapAssetPath
+        val isBootstrapPayloadPackaged = hasAsset(
+            context = context,
+            assetPath = bootstrapAssetPath,
+        )
         return iTermuxRuntimeInitializer.initialize(
             filesDir = context.filesDir.absolutePath,
             hostPackageName = context.packageName,
             config = config,
             supportedPackages = supportedPackages,
+            bootstrapAssetPath = bootstrapAssetPath,
+            isBootstrapPayloadPackaged = isBootstrapPayloadPackaged,
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
@@ -41,6 +48,8 @@ object iTermux {
             identity = runtime.identity,
             paths = runtime.paths,
             supportedPackages = runtime.supportedPackages,
+            bootstrapAssetPath = runtime.bootstrapAssetPath,
+            isBootstrapPayloadPackaged = runtime.isBootstrapPayloadPackaged,
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
@@ -72,5 +81,12 @@ object iTermux {
                 iTermuxSupportedPackages.parse(stream)
             }
         }.getOrDefault(emptyList())
+    }
+
+    private fun hasAsset(context: Context, assetPath: String): Boolean {
+        return runCatching {
+            context.assets.open(assetPath).use { }
+            true
+        }.getOrDefault(false)
     }
 }
