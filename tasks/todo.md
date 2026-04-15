@@ -31,6 +31,7 @@
 - [x] Expose offline bootstrap payload metadata on the initialized runtime so hosts can distinguish packaged payload state from prefix installation state.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
+- continue next slice
 
 ## Completed slice: scaffold the Android project root
 
@@ -46,6 +47,7 @@
 - [x] Write `CONTRIBUTING.md` with scope boundaries, tagging rules, and upstream hygiene.
 - [x] Verify the future Android project area is still empty after the slice.
 - [x] Add a short review section with findings and next-slice trigger.
+- continue next slice
 
 ## Roadmap queue
 
@@ -55,36 +57,42 @@
 - [ ] Replace all hardcoded prefix literals with derived paths.
 - [ ] Rewire shell/bootstrap environment injection around the derived prefix.
 - [ ] Verify runtime paths under a non-Termux application ID.
+- continue next slice
 
 ### Phase 2: Rename and protect
 
 - [ ] Replace `com.termux` package assumptions with the project namespace.
 - [ ] Tag every modified upstream-derived file with the merge marker comment.
 - [ ] Verify the fork runs cleanly under the renamed package.
+- continue next slice
 
 ### Phase 3: Convert to a library module
 
 - [ ] Evolve `core/` as an Android library informed by the audit.
 - [ ] Remove or stub standalone launcher entry points.
 - [ ] Expose the embed API surface and verify it in `sample-app/`.
+- continue next slice
 
 ### Phase 4: Controlled bootstrap
 
 - [x] Define `supported-packages.txt`.
 - [ ] Build and integrate the minimal bootstrap payload.
 - [ ] Verify offline cold-start initialization via the library API.
+- continue next slice
 
 ### Phase 5: proot plugin
 
 - [ ] Isolate proot support into `proot-plugin/`.
 - [ ] Define the shared session abstraction for native and proot sessions.
 - [ ] Verify separate native and proot sessions through the same host API.
+- continue next slice
 
 ### Phase 6: Merge protection
 
 - [ ] Implement the upstream diff workflow and `tools/merge-check.sh`.
 - [ ] Verify tagged-file review detection against the upstream mirror.
 - [ ] Document the upstream sync procedure.
+- continue next slice
 
 ## Review
 
