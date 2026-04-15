@@ -10,3 +10,4 @@
 - Do not end the turn after a successful build or test run unless the user explicitly asked for a status update. Green verification is permission to continue, not a reporting boundary.
 - Do not end the turn after structural chores either. Flattening, adding remotes, updating docs, making commits, or reaching a clean tree are all continuation checkpoints unless the user explicitly asks for a stop or a real blocker appears.
 - Never spawn subagents in this repo. Keep all planning, implementation, verification, and review inline in the main agent thread.
+- Do not switch into summary mode just because multiple verified slices landed cleanly. A clean tree after commits is still not a stopping condition unless the user explicitly asked for status or a real blocker appeared.
