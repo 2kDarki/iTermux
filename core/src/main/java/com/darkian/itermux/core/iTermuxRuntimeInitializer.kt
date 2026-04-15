@@ -16,6 +16,8 @@ object iTermuxRuntimeInitializer {
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
+        autoInstallBootstrap: Boolean = false,
+        bootstrapInstaller: ((iTermuxRuntime) -> iTermuxRuntime)? = null,
     ): iTermuxRuntime {
         val identity = iTermuxIdentityResolver.resolve(
             hostPackageName = hostPackageName,
@@ -35,6 +37,8 @@ object iTermuxRuntimeInitializer {
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
+            autoInstallBootstrap = autoInstallBootstrap,
+            bootstrapInstaller = bootstrapInstaller,
         )
     }
 
@@ -68,6 +72,8 @@ object iTermuxRuntimeInitializer {
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
+        autoInstallBootstrap: Boolean = false,
+        bootstrapInstaller: ((iTermuxRuntime) -> iTermuxRuntime)? = null,
     ): iTermuxRuntime {
         val environment = iTermuxEnvironment.build(
             paths = paths,
@@ -83,7 +89,7 @@ object iTermuxRuntimeInitializer {
         val defaultWorkingDirectory = iTermuxWorkingDirectory.resolve(paths, properties)
         val isBootstrapRequired = iTermuxPrefixState.isBootstrapRequired(paths)
 
-        return iTermuxRuntime(
+        val runtime = iTermuxRuntime(
             identity = identity,
             paths = paths,
             environment = environment,
@@ -95,5 +101,29 @@ object iTermuxRuntimeInitializer {
             defaultWorkingDirectory = defaultWorkingDirectory,
             isBootstrapRequired = isBootstrapRequired,
         )
+
+        return maybeInstallBootstrap(
+            runtime = runtime,
+            autoInstallBootstrap = autoInstallBootstrap,
+            bootstrapInstaller = bootstrapInstaller,
+        )
+    }
+
+    private fun maybeInstallBootstrap(
+        runtime: iTermuxRuntime,
+        autoInstallBootstrap: Boolean,
+        bootstrapInstaller: ((iTermuxRuntime) -> iTermuxRuntime)?,
+    ): iTermuxRuntime {
+        if (!autoInstallBootstrap || !runtime.isBootstrapRequired) {
+            return runtime
+        }
+        if (!runtime.isBootstrapPayloadPackaged) {
+            return runtime
+        }
+
+        checkNotNull(bootstrapInstaller) {
+            "A bootstrap installer is required when auto-installing a packaged payload."
+        }
+        return bootstrapInstaller(runtime)
     }
 }

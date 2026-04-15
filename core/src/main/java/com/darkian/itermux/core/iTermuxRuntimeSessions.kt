@@ -69,7 +69,7 @@ fun iTermuxRuntime.createSession(
 ): iTermuxSession {
     return iTermuxSession(
         id = sessionId,
-        kind = iTermuxSessionKind.NATIVE,
+        backend = iTermuxSessionBackends.NATIVE,
         mode = iTermuxSessionMode.LOGIN_SHELL,
         shellSpec = loginShell(
             shellBinary = shellBinary,
@@ -92,7 +92,7 @@ fun iTermuxRuntime.createCommandSession(
 ): iTermuxSession {
     return iTermuxSession(
         id = sessionId,
-        kind = iTermuxSessionKind.NATIVE,
+        backend = iTermuxSessionBackends.NATIVE,
         mode = iTermuxSessionMode.COMMAND,
         shellSpec = command(
             executable = executable,
@@ -116,7 +116,7 @@ fun iTermuxRuntime.createFileSession(
 ): iTermuxSession {
     return iTermuxSession(
         id = sessionId,
-        kind = iTermuxSessionKind.NATIVE,
+        backend = iTermuxSessionBackends.NATIVE,
         mode = iTermuxSessionMode.FILE_COMMAND,
         shellSpec = fileCommand(
             executable = executable,

@@ -4,13 +4,23 @@ import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
 import com.darkian.itermux.core.iTermux
+import com.darkian.itermux.proot.createProotSession
+import com.darkian.itermux.proot.iTermuxProotDistribution
+import java.io.File
 
 class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val runtime = iTermux.initialize(this)
-        val session = iTermux.createSession(runtime, sessionId = "sample")
+        val nativeSession = iTermux.createSession(runtime, sessionId = "sample")
+        val prootSession = runtime.createProotSession(
+            distribution = iTermuxProotDistribution(
+                name = "debian",
+                rootfsPath = File(runtime.paths.filesDir, "proot/debian-rootfs").absolutePath,
+            ),
+            sessionId = "sample-proot",
+        )
         val message = buildString {
             append("internal-termux sample host\n\n")
             append("Initialized host-owned runtime.\n")
@@ -40,12 +50,22 @@ class MainActivity : Activity() {
             append(runtime.bootstrapAssetPath)
             append("\nbootstrapPayloadPackaged: ")
             append(runtime.isBootstrapPayloadPackaged)
-            append("\nsessionId: ")
-            append(session.id)
-            append("\nsessionMode: ")
-            append(session.mode)
-            append("\nsessionExecutable: ")
-            append(session.shellSpec.executable)
+            append("\nnativeSessionId: ")
+            append(nativeSession.id)
+            append("\nnativeBackend: ")
+            append(nativeSession.backend.id)
+            append("\nnativeSessionMode: ")
+            append(nativeSession.mode)
+            append("\nnativeExecutable: ")
+            append(nativeSession.shellSpec.executable)
+            append("\nprootSessionId: ")
+            append(prootSession.id)
+            append("\nprootBackend: ")
+            append(prootSession.backend.id)
+            append("\nprootExecutable: ")
+            append(prootSession.shellSpec.executable)
+            append("\nprootArguments: ")
+            append(prootSession.shellSpec.arguments.joinToString(" "))
             append("\nPATH: ")
             append(runtime.environment["PATH"])
         }

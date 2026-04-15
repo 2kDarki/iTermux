@@ -18,7 +18,7 @@ class iTermuxNativeSessionTest {
         )
 
         assertEquals("main", session.id)
-        assertEquals(iTermuxSessionKind.NATIVE, session.kind)
+        assertEquals(iTermuxSessionBackends.NATIVE, session.backend)
         assertEquals(iTermuxSessionMode.LOGIN_SHELL, session.mode)
         assertEquals("${runtime.paths.binDir}/sh", session.shellSpec.executable)
         assertEquals(runtime.defaultWorkingDirectory, session.shellSpec.workingDirectory)
@@ -47,12 +47,12 @@ class iTermuxNativeSessionTest {
         )
 
         assertEquals("command", commandSession.id)
-        assertEquals(iTermuxSessionKind.NATIVE, commandSession.kind)
+        assertEquals(iTermuxSessionBackends.NATIVE, commandSession.backend)
         assertEquals(iTermuxSessionMode.COMMAND, commandSession.mode)
         assertEquals("${runtime.paths.binDir}/env", commandSession.shellSpec.executable)
 
         assertEquals("script", fileSession.id)
-        assertEquals(iTermuxSessionKind.NATIVE, fileSession.kind)
+        assertEquals(iTermuxSessionBackends.NATIVE, fileSession.backend)
         assertEquals(iTermuxSessionMode.FILE_COMMAND, fileSession.mode)
         assertEquals("${runtime.paths.binDir}/sh", fileSession.shellSpec.executable)
         assertEquals(listOf(scriptFile.absolutePath, "arg1"), fileSession.shellSpec.arguments)

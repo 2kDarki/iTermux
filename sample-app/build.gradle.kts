@@ -45,4 +45,5 @@ android {
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":proot-plugin"))
 }

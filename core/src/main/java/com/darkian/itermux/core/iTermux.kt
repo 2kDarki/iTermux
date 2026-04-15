@@ -36,6 +36,12 @@ object iTermux {
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
+            autoInstallBootstrap = true,
+            bootstrapInstaller = { runtime ->
+                installBootstrap(runtime) {
+                    context.assets.open(runtime.bootstrapAssetPath)
+                }
+            },
         )
     }
 

@@ -6,13 +6,17 @@ package com.darkian.itermux.core
  */
 data class iTermuxSession(
     val id: String,
-    val kind: iTermuxSessionKind,
+    val backend: iTermuxSessionBackend,
     val mode: iTermuxSessionMode,
     val shellSpec: iTermuxShellSpec,
 )
 
-enum class iTermuxSessionKind {
-    NATIVE,
+data class iTermuxSessionBackend(
+    val id: String,
+)
+
+object iTermuxSessionBackends {
+    val NATIVE: iTermuxSessionBackend = iTermuxSessionBackend(id = "native")
 }
 
 enum class iTermuxSessionMode {
