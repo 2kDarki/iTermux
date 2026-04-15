@@ -1,6 +1,7 @@
 package com.darkian.itermux.core
 
 import android.content.Context
+import java.io.InputStream
 
 // INTERNAL-TERMUX MODIFIED - merge carefully
 
@@ -73,6 +74,25 @@ object iTermux {
             workingDirectory = workingDirectory,
             failSafe = failSafe,
         )
+    }
+
+    fun installBootstrap(
+        runtime: iTermuxRuntime,
+        openPayload: () -> InputStream,
+    ): iTermuxRuntime {
+        return iTermuxBootstrapInstaller.install(
+            runtime = runtime,
+            openPayload = openPayload,
+        )
+    }
+
+    fun installPackagedBootstrap(
+        context: Context,
+        runtime: iTermuxRuntime,
+    ): iTermuxRuntime {
+        return installBootstrap(runtime) {
+            context.assets.open(runtime.bootstrapAssetPath)
+        }
     }
 
     private fun loadSupportedPackages(context: Context): List<String> {

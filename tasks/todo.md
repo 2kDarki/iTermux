@@ -29,6 +29,8 @@
 - [x] Package `supported-packages.txt` into `core` assets and surface it on the initialized runtime.
 - [x] Add a sync guard so the root package list and packaged asset cannot silently drift apart.
 - [x] Expose offline bootstrap payload metadata on the initialized runtime so hosts can distinguish packaged payload state from prefix installation state.
+- [x] Add a tar.xz bootstrap installer seam that can extract a packaged offline payload into the host-owned prefix.
+- [x] Expose a context-backed packaged-bootstrap convenience API on the `iTermux` facade.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 - continue next slice
@@ -154,6 +156,11 @@
   offline payload is actually packaged, which separates “prefix still needs
   installation” from “the library ships a bootstrap payload ready to install”
   ahead of real extraction logic.
+- `core` now has a real offline bootstrap installer seam: `iTermux` can accept
+  a tar.xz payload stream, extract it safely into the staging prefix, promote
+  it into the live prefix, and refresh runtime state so bootstrap readiness
+  flips without relying on network fetches. The facade also has a
+  context-backed convenience overload for packaged assets.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.
