@@ -26,6 +26,8 @@
 - [x] Tag the current core runtime files with the merge marker comment required for upstream-derived work.
 - [x] Add a serial namespace verification script for legacy `com.termux` and hardcoded prefix literals in the active project tree.
 - [x] Add a host-facing native session object and default `iTermux.createSession()` entry point on top of the shell-spec builders.
+- [x] Package `supported-packages.txt` into `core` assets and surface it on the initialized runtime.
+- [x] Add a sync guard so the root package list and packaged asset cannot silently drift apart.
 - [x] Re-run serial `:core:testDebugUnitTest` verification after each migration slice.
 - [x] Run a wider serial project verification pass now that the `core` seam is materially richer.
 
@@ -135,6 +137,10 @@
   currently justified by DDS-side runtime behavior: a shell, core userland,
   git, TLS certificates, HTTP fetch support, and `xz` handling for compressed
   payloads.
+- The supported package scope is now runtime-visible instead of doc-only:
+  `core` packages the same list as an asset, `iTermux` loads and exposes it on
+  initialized runtime state, and `tools/verify-supported-packages-sync.ps1`
+  guards the root file and packaged asset against drift.
 - Verification: `./gradlew.bat projects` succeeded for the scaffold, and
   repeated serial `./gradlew.bat --stop; ./gradlew.bat :core:testDebugUnitTest`
   runs are passing after the path, environment, shell, and interpreter work.

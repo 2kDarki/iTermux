@@ -19,10 +19,12 @@ object iTermux {
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
     ): iTermuxRuntime {
+        val supportedPackages = loadSupportedPackages(context)
         return iTermuxRuntimeInitializer.initialize(
             filesDir = context.filesDir.absolutePath,
             hostPackageName = context.packageName,
             config = config,
+            supportedPackages = supportedPackages,
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
@@ -38,6 +40,7 @@ object iTermux {
         return iTermuxRuntimeInitializer.refresh(
             identity = runtime.identity,
             paths = runtime.paths,
+            supportedPackages = runtime.supportedPackages,
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
@@ -61,5 +64,13 @@ object iTermux {
             workingDirectory = workingDirectory,
             failSafe = failSafe,
         )
+    }
+
+    private fun loadSupportedPackages(context: Context): List<String> {
+        return runCatching {
+            context.assets.open(iTermuxSupportedPackages.ASSET_PATH).use { stream ->
+                iTermuxSupportedPackages.parse(stream)
+            }
+        }.getOrDefault(emptyList())
     }
 }

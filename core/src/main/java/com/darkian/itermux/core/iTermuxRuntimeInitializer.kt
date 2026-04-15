@@ -10,6 +10,7 @@ object iTermuxRuntimeInitializer {
         filesDir: String,
         hostPackageName: String,
         config: iTermuxConfig = iTermuxConfig(),
+        supportedPackages: List<String> = emptyList(),
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
@@ -26,6 +27,7 @@ object iTermuxRuntimeInitializer {
         return refresh(
             identity = identity,
             paths = paths,
+            supportedPackages = supportedPackages,
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
@@ -34,6 +36,7 @@ object iTermuxRuntimeInitializer {
 
     fun refresh(
         paths: iTermuxPaths,
+        supportedPackages: List<String> = emptyList(),
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
@@ -41,6 +44,7 @@ object iTermuxRuntimeInitializer {
         return refresh(
             identity = iTermuxIdentityResolver.resolve(paths),
             paths = paths,
+            supportedPackages = supportedPackages,
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
@@ -50,6 +54,7 @@ object iTermuxRuntimeInitializer {
     fun refresh(
         identity: iTermuxIdentity,
         paths: iTermuxPaths,
+        supportedPackages: List<String> = emptyList(),
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
@@ -72,6 +77,7 @@ object iTermuxRuntimeInitializer {
             identity = identity,
             paths = paths,
             environment = environment,
+            supportedPackages = supportedPackages,
             properties = properties,
             selectedPropertiesFile = selectedPropertiesFile,
             defaultWorkingDirectory = defaultWorkingDirectory,

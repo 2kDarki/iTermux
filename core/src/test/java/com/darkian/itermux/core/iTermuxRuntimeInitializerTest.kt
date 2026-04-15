@@ -15,6 +15,7 @@ class iTermuxRuntimeInitializerTest {
         val runtime = iTermuxRuntimeInitializer.initialize(
             filesDir = filesDir,
             hostPackageName = "com.darkian.host",
+            supportedPackages = listOf("bash", "coreutils"),
         )
 
         assertEquals("$filesDir/usr", runtime.paths.prefixDir)
@@ -23,6 +24,7 @@ class iTermuxRuntimeInitializerTest {
         assertEquals("com.darkian.host.files", runtime.identity.filesAuthority)
         assertEquals("com.darkian.host.service_execute", runtime.identity.serviceExecuteAction)
         assertEquals("com.darkian.host.widget", runtime.identity.pluginPackageNames.widget)
+        assertEquals(listOf("bash", "coreutils"), runtime.supportedPackages)
         assertEquals("$filesDir/usr/bin", runtime.environment["PATH"])
         assertEquals(runtime.paths.homeDir, runtime.defaultWorkingDirectory)
         assertNull(runtime.selectedPropertiesFile)

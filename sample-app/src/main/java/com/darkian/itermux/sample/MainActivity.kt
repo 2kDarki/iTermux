@@ -34,6 +34,8 @@ class MainActivity : Activity() {
             append(runtime.isBootstrapRequired)
             append("\nserviceExecuteAction: ")
             append(runtime.identity.serviceExecuteAction)
+            append("\nsupportedPackages: ")
+            append(runtime.supportedPackages.joinToString(", ").ifEmpty { "<none>" })
             append("\nsessionId: ")
             append(session.id)
             append("\nsessionMode: ")
