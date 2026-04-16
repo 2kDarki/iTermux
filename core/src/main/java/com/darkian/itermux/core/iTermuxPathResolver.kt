@@ -28,8 +28,8 @@ object iTermuxPathResolver {
         config: iTermuxConfig = iTermuxConfig(),
     ): iTermuxPaths {
         val normalizedFilesDir = filesDir.trimEnd('/', '\\')
-
-        val prefixDir = normalizedFilesDir.child(config.usrDirName)
+        val prefixDir = config.prefixPathOverride?.trimEnd('/', '\\') ?: normalizedFilesDir.child(config.usrDirName)
+        val prefixParentDir = prefixDir.parentPath() ?: normalizedFilesDir
         val homeDir = normalizedFilesDir.child(config.homeDirName)
         val configHomeDir = homeDir.child(config.configHomeDirName)
         val dataHomeDir = homeDir.child(config.dataHomeDirName)
@@ -47,7 +47,7 @@ object iTermuxPathResolver {
             configHomeDir = configHomeDir,
             dataHomeDir = dataHomeDir,
             storageHomeDir = homeDir.child("storage"),
-            stagingPrefixDir = normalizedFilesDir.child(config.stagingUsrDirName),
+            stagingPrefixDir = prefixParentDir.child(config.stagingUsrDirName),
             appsDir = appsDir,
             configPrefixDir = configPrefixDir,
             propertiesPrimaryFile = dataHomeDir.child("termux.properties"),
@@ -59,4 +59,12 @@ object iTermuxPathResolver {
     }
 
     private fun String.child(name: String): String = "$this/$name"
+
+    private fun String.parentPath(): String? {
+        val normalized = trimEnd('/', '\\')
+        val lastForwardSlash = normalized.lastIndexOf('/')
+        val lastBackwardSlash = normalized.lastIndexOf('\\')
+        val lastSeparator = maxOf(lastForwardSlash, lastBackwardSlash)
+        return if (lastSeparator <= 0) null else normalized.substring(0, lastSeparator)
+    }
 }

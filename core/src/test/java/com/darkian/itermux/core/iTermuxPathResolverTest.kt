@@ -71,4 +71,25 @@ class iTermuxPathResolverTest {
         assertEquals("/app/files/runtime-home/.config/runtime/termux.properties", paths.propertiesSecondaryFile)
         assertEquals("/app/files/runtime-apps/com.darkian.itermux.host/termux-am/am.sock", paths.termuxAmSocketFile)
     }
+
+    @Test
+    fun supportsAbsolutePrefixOverrideWhileKeepingHostOwnedHomeAndApps() {
+        val config = iTermuxConfig(
+            prefixPathOverride = "/custom/prefix",
+            stagingUsrDirName = "custom-stage",
+        )
+
+        val paths = iTermuxPathResolver.resolve(
+            filesDir = "/app/files",
+            hostPackageName = "com.darkian.itermux.host",
+            config = config,
+        )
+
+        assertEquals("/custom/prefix", paths.prefixDir)
+        assertEquals("/custom/prefix/bin", paths.binDir)
+        assertEquals("/custom/prefix/etc", paths.etcDir)
+        assertEquals("/custom/custom-stage", paths.stagingPrefixDir)
+        assertEquals("/app/files/home", paths.homeDir)
+        assertEquals("/app/files/apps", paths.appsDir)
+    }
 }

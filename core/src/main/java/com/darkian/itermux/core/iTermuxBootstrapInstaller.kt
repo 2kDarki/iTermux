@@ -51,6 +51,7 @@ object iTermuxBootstrapInstaller {
             identity = runtime.identity,
             paths = runtime.paths,
             supportedPackages = runtime.supportedPackages,
+            isProotEnabled = runtime.isProotEnabled,
             supportedAbis = runtime.supportedAbis,
             bootstrapAssetPath = runtime.bootstrapAssetPath,
             bootstrapVariantAbi = runtime.bootstrapVariantAbi,

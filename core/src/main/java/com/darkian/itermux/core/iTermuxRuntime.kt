@@ -10,6 +10,7 @@ data class iTermuxRuntime(
     val paths: iTermuxPaths,
     val environment: Map<String, String>,
     val supportedPackages: List<String>,
+    val isProotEnabled: Boolean,
     val supportedAbis: List<String>,
     val bootstrapAssetPath: String,
     val bootstrapVariantAbi: String?,

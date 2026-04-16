@@ -47,7 +47,7 @@
 - [x] Define the lifecycle listener contract in `core/`:
   `onBootstrapState`, `onSessionState`, and `onEnvironmentValidation`, with
   callback-thread delivery controlled by config.
-- [ ] Expand `iTermuxConfig` to cover prefix override, supported ABI override,
+- [x] Expand `iTermuxConfig` to cover prefix override, supported ABI override,
   bootstrap asset key/variant selection, callback-thread selection, and proot
   enablement without leaking host policy into `core/`.
 - [ ] Close the failure taxonomy around the runtime contract so bootstrap,
@@ -119,6 +119,10 @@
   callbacks through a configurable callback-thread policy, and forwards
   bootstrap/environment notifications from runtime initialization plus
   `STARTING`/`RUNNING` session events from the public session facade.
+- Second Phase 8 slice landed on 2026-04-16: `iTermuxConfig` now carries
+  prefix override, ABI override, bootstrap variant selection inputs, callback
+  thread selection, and proot enablement, while path resolution and runtime
+  metadata preserve those choices without pushing interpretation into `core/`.
 - Focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
@@ -134,4 +138,7 @@
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
 - Lifecycle slice verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxLifecycleListenerTest" --console=plain`
+  and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
+- Config slice verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxPathResolverTest" --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.

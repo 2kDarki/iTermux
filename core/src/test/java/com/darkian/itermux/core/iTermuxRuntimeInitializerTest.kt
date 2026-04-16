@@ -83,4 +83,21 @@ class iTermuxRuntimeInitializerTest {
         assertEquals(configuredDirectory.absolutePath, runtime.defaultWorkingDirectory)
         assertEquals(iTermuxBootstrapState.UNINITIALIZED, runtime.bootstrapState)
     }
+
+    @Test
+    fun surfacesConfigDrivenPrefixOverrideAndProotEnablement() {
+        val filesDir = Files.createTempDirectory("itermux-runtime-config").toFile().absolutePath
+
+        val runtime = iTermuxRuntimeInitializer.initialize(
+            filesDir = filesDir,
+            hostPackageName = "com.darkian.host",
+            config = iTermuxConfig(
+                prefixPathOverride = "$filesDir/custom-prefix",
+                prootEnabled = true,
+            ),
+        )
+
+        assertEquals("$filesDir/custom-prefix", runtime.paths.prefixDir)
+        assertEquals(true, runtime.isProotEnabled)
+    }
 }
