@@ -1,6 +1,8 @@
 package com.darkian.itermux.core
 
 import android.content.Context
+import android.os.Build
+import android.util.Log
 import java.io.InputStream
 
 // INTERNAL-TERMUX MODIFIED - merge carefully
@@ -13,6 +15,8 @@ import java.io.InputStream
  * upstream Termux internals will be wired on top of this base incrementally.
  */
 object iTermux {
+    private const val TAG = "iTermux"
+
     fun initialize(
         context: Context,
         config: iTermuxConfig = iTermuxConfig(),
@@ -21,7 +25,23 @@ object iTermux {
         failSafe: Boolean = false,
     ): iTermuxRuntime {
         val supportedPackages = loadSupportedPackages(context)
-        val bootstrapAssetPath = config.bootstrapAssetPath
+        val supportedAbis = config.supportedAbisOverride ?: Build.SUPPORTED_ABIS.toList()
+        val bootstrapVariant = iTermuxBootstrapResolver.resolve(
+            supportedAbis = supportedAbis,
+            config = config,
+        )
+        val bootstrapAssetPath = bootstrapVariant?.assetPath ?: config.bootstrapAssetPath
+        if (bootstrapVariant != null) {
+            Log.i(
+                TAG,
+                "Resolved bootstrap variant ${bootstrapVariant.abi} to $bootstrapAssetPath for device ABIs $supportedAbis",
+            )
+        } else {
+            Log.w(
+                TAG,
+                "No packaged bootstrap variant matched device ABIs $supportedAbis",
+            )
+        }
         val isBootstrapPayloadPackaged = hasAsset(
             context = context,
             assetPath = bootstrapAssetPath,
@@ -31,6 +51,7 @@ object iTermux {
             hostPackageName = context.packageName,
             config = config,
             supportedPackages = supportedPackages,
+            supportedAbis = supportedAbis,
             bootstrapAssetPath = bootstrapAssetPath,
             isBootstrapPayloadPackaged = isBootstrapPayloadPackaged,
             baseEnv = baseEnv,
@@ -55,7 +76,9 @@ object iTermux {
             identity = runtime.identity,
             paths = runtime.paths,
             supportedPackages = runtime.supportedPackages,
+            supportedAbis = runtime.supportedAbis,
             bootstrapAssetPath = runtime.bootstrapAssetPath,
+            bootstrapVariantAbi = runtime.bootstrapVariantAbi,
             isBootstrapPayloadPackaged = runtime.isBootstrapPayloadPackaged,
             baseEnv = baseEnv,
             extraEnv = extraEnv,

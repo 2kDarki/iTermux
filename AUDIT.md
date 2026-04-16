@@ -27,6 +27,18 @@ there during this audit.
 - `upstream/termux-packages` and `upstream/proot-distro` are reference inputs
   for bootstrap and future proot work.
 
+## Current embedded bootstrap matrix
+
+Phase 7 ABI packaging now treats the bootstrap payload as variant-specific
+instead of assuming one universal tarball path:
+
+| ABI | Asset path | Support status | Notes |
+| --- | --- | --- | --- |
+| `arm64-v8a` | `core/src/main/assets/itermux/bootstrap/arm64-v8a/bootstrap.tar.xz` | Required | Primary Android device path. |
+| `armeabi-v7a` | `core/src/main/assets/itermux/bootstrap/armeabi-v7a/bootstrap.tar.xz` | Supported | Fallback for older 32-bit ARM devices. |
+| `x86_64` | `core/src/main/assets/itermux/bootstrap/x86_64/bootstrap.tar.xz` | Supported | Emulator and Chromebook path. |
+| Any other ABI list | none | Unsupported | Runtime must fail early with `UNSUPPORTED_ABI` before extraction. |
+
 ## Category A: Package identity and Android app ownership
 
 ### A1. App ID, shared user, and authorities

@@ -21,7 +21,7 @@
 - [ ] Implement a bootstrap state machine in `core/` that performs full
   re-extraction on the single allowed retry, enforces the 30-second retry gate,
   and makes `VERIFYING` mandatory before `READY`.
-- [ ] Add ABI-aware bootstrap selection with `BootstrapResolver`, supported ABI
+- [x] Add ABI-aware bootstrap selection with `BootstrapResolver`, supported ABI
   overrides in config, and a named unsupported-ABI failure path before any
   extraction work begins.
 - [ ] Add fast-path environment validation on `init()` via
@@ -105,9 +105,17 @@
   now distinguishes valid extracted runtimes from degraded ones, surfacing
   `DEGRADED` with a named `DegradedCause` when the prefix structure exists but
   the core shell contract is broken.
+- Third Phase 7 slice landed on 2026-04-16: bootstrap initialization now
+  resolves ABI-specific packaged payloads, records the selected bootstrap
+  variant on the runtime, fails early with `UNSUPPORTED_ABI` when no variant
+  matches, and ships mirrored per-ABI bootstrap assets for `arm64-v8a`,
+  `armeabi-v7a`, and `x86_64`.
 - Focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
 - Additional focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeRefreshTest" --console=plain`
+  and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
+- ABI slice verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxBootstrapResolverTest" --tests "com.darkian.itermux.core.iTermuxBootstrapAssetsTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.

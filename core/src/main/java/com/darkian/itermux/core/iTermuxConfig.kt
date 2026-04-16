@@ -15,5 +15,7 @@ data class iTermuxConfig(
     val configHomeDirName: String = ".config/termux",
     val dataHomeDirName: String = ".termux",
     val bootstrapAssetPath: String = "itermux/bootstrap/bootstrap.tar.xz",
+    val supportedAbisOverride: List<String>? = null,
+    val bootstrapVariants: List<iTermuxBootstrapVariant> = iTermuxBootstrapResolver.defaultVariants(),
     val hostPackageNameOverride: String? = null,
 )

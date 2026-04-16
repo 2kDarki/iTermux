@@ -79,6 +79,29 @@ class iTermuxAutoBootstrapTest {
         assertEquals(iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED, runtime.failureCause)
     }
 
+    @Test
+    fun initializeFailsEarlyWhenNoBootstrapVariantMatchesSupportedAbis() {
+        var installerInvoked = false
+
+        val runtime = iTermuxRuntimeInitializer.initialize(
+            filesDir = Files.createTempDirectory("itermux-auto-bootstrap-unsupported-abi").toFile().absolutePath,
+            hostPackageName = "com.darkian.host",
+            supportedAbis = listOf("x86", "mips"),
+            isBootstrapPayloadPackaged = true,
+            autoInstallBootstrap = true,
+            bootstrapInstaller = { currentRuntime ->
+                installerInvoked = true
+                currentRuntime
+            },
+        )
+
+        assertEquals(iTermuxBootstrapState.FAILED, runtime.bootstrapState)
+        assertEquals(iTermuxRuntimeFailureCause.UNSUPPORTED_ABI, runtime.failureCause)
+        assertEquals(listOf("x86", "mips"), runtime.supportedAbis)
+        assertEquals(null, runtime.bootstrapVariantAbi)
+        assertFalse(installerInvoked)
+    }
+
     private fun bootstrapArchive(vararg entries: Pair<String, String>): ByteArray {
         val output = ByteArrayOutputStream()
         XZCompressorOutputStream(output).use { xzOutput ->

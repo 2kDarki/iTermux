@@ -11,11 +11,12 @@ class iTermuxBootstrapAssetsTest {
         val runtime = iTermuxRuntimeInitializer.initialize(
             filesDir = Files.createTempDirectory("itermux-bootstrap-assets").toFile().absolutePath,
             hostPackageName = "com.darkian.host",
-            bootstrapAssetPath = "itermux/bootstrap/bootstrap.tar.xz",
+            supportedAbis = listOf("arm64-v8a"),
             isBootstrapPayloadPackaged = true,
         )
 
-        assertEquals("itermux/bootstrap/bootstrap.tar.xz", runtime.bootstrapAssetPath)
+        assertEquals("arm64-v8a", runtime.bootstrapVariantAbi)
+        assertEquals("itermux/bootstrap/arm64-v8a/bootstrap.tar.xz", runtime.bootstrapAssetPath)
         assertEquals(true, runtime.isBootstrapPayloadPackaged)
     }
 
@@ -24,7 +25,7 @@ class iTermuxBootstrapAssetsTest {
         val runtime = iTermuxRuntimeInitializer.initialize(
             filesDir = Files.createTempDirectory("itermux-bootstrap-assets-refresh").toFile().absolutePath,
             hostPackageName = "com.darkian.host",
-            bootstrapAssetPath = "itermux/bootstrap/bootstrap.tar.xz",
+            supportedAbis = listOf("x86_64"),
             isBootstrapPayloadPackaged = false,
         )
 
@@ -32,11 +33,14 @@ class iTermuxBootstrapAssetsTest {
             identity = runtime.identity,
             paths = runtime.paths,
             supportedPackages = runtime.supportedPackages,
+            supportedAbis = runtime.supportedAbis,
             bootstrapAssetPath = runtime.bootstrapAssetPath,
+            bootstrapVariantAbi = runtime.bootstrapVariantAbi,
             isBootstrapPayloadPackaged = runtime.isBootstrapPayloadPackaged,
         )
 
-        assertEquals("itermux/bootstrap/bootstrap.tar.xz", refreshed.bootstrapAssetPath)
+        assertEquals("x86_64", refreshed.bootstrapVariantAbi)
+        assertEquals("itermux/bootstrap/x86_64/bootstrap.tar.xz", refreshed.bootstrapAssetPath)
         assertFalse(refreshed.isBootstrapPayloadPackaged)
     }
 }
