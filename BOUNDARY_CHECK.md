@@ -51,3 +51,42 @@ still belongs outside the library.
 No boundary drift was found in the current Phase 7-8 surface. The remaining
 host-side work is normalization and orchestration in the DS/sample layer, not
 more policy inside `core/`.
+
+## Phase 9 Audit
+
+### DS normalization layer
+
+`sample-app/src/main/java/com/darkian/itermux/sample/iTermuxDsStateMapper.kt`
+and `iTermuxDsLifecycleRecorder.kt` stay outside `core/` because they interpret
+raw runtime signals into DS orchestration states. The new `RUNTIME_LOADING` /
+`RUNTIME_READY` / `RUNTIME_RECOVERING` / `RUNTIME_UNAVAILABLE` enum does not
+cross back into `core/`, so the runtime still exposes facts while the host owns
+meaning.
+
+### Sample-app integration spike
+
+`MainActivity` now owns listener registration, normalized state display, and
+the simulated session-recovery demo. That is deliberately host policy. `core/`
+still emits bootstrap, validation, and session transitions without deciding
+what a DS should show or how a dead session should be surfaced.
+
+### Failure-injection and validation seams
+
+The only new seam in `core/` is `iTermuxEnvironmentFileAccess`, which abstracts
+filesystem facts so validation can be exercised against sandbox loss,
+executable-bit drift, and ABI mismatch without baking DS behavior into the
+runtime. The interpretation of those failures lives in `docs/` and
+`sample-app/`, not in the validator itself.
+
+### Discovery artifacts
+
+The failure-injection playbook, multi-device matrix, and first performance
+baseline all live in `docs/` because they report and interpret observed
+behavior. No benchmarking, device targeting, or DS normalization policy was
+moved into `core/`.
+
+## Phase 9 Result
+
+No new boundary drift was introduced by the Phase 9 normalization and discovery
+work. The runtime contract remains state-oriented, while DS-specific
+orchestration and reporting stay in the sample/host layer.

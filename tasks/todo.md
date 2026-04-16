@@ -24,7 +24,7 @@
 - [x] Add ABI-aware bootstrap selection with `BootstrapResolver`, supported ABI
   overrides in config, and a named unsupported-ABI failure path before any
   extraction work begins.
-- [ ] Add fast-path environment validation on `init()` via
+- [x] Add fast-path environment validation on `init()` via
   `EnvironmentValidator`, including `DegradedCause` coverage for missing
   binaries, executable-bit drift, corrupted installs, ABI mismatch, and sandbox
   invalidation.
@@ -60,32 +60,34 @@
 
 ### Phase 9 - DS integration and discovery
 
-- [ ] Define and commit the DS normalization table that maps high-resolution
+- [x] Define and commit the DS normalization table that maps high-resolution
   iTermux states onto DS runtime states before integration code starts.
-- [ ] Add a minimal DS integration spike in `sample-app/` that exercises the
+- [x] Add a minimal DS integration spike in `sample-app/` that exercises the
   full lifecycle contract, including bootstrap load and session recovery paths.
-- [ ] Add failure-injection seams and documented test procedures for interrupted
+- [x] Add failure-injection seams and documented test procedures for interrupted
   extraction, repeated failure within the retry window, corrupted bootstrap,
   unsupported ABI, recoverable degradation, structural degradation, and session
   kill recovery.
-- [ ] Record the multi-device test matrix and capture a first performance
+- [x] Record the multi-device test matrix and capture a first performance
   baseline for cold init, warm init, shell prompt, idle memory, and recovery
   latency.
-- [ ] Re-run the boundary audit after DS integration stabilizes and record the
+- [x] Re-run the boundary audit after DS integration stabilizes and record the
   findings in `BOUNDARY_CHECK.md` before closing Phase 9.
 
 ## Current execution slice
 
-- [x] Finish the earlier Phase 7 bootstrap/config slices before moving to
-  session hardening.
-- [x] Work the next slice in this order:
-  1. failing tests for session state bookkeeping and one-shot recovery
-  2. session controller + named failure-cause wiring for native/proot starts
-  3. lifecycle callback coverage for recovery paths
-  4. boundary-check doc + stale checklist correction
-  5. focused verification
-  6. graph rebuild
-  7. detailed commit
+- [x] Close the remaining Phase 7 environment-validation gap by covering all
+  named degraded causes in `EnvironmentValidator` and refresh-time tests.
+- [x] Commit the DS normalization table, implement the mapper in `sample-app/`,
+  and keep raw iTermux states out of DS-facing code outside that layer.
+- [x] Turn `sample-app/` into the minimal DS spike by wiring a lifecycle
+  recorder, bootstrap/session normalization, and a simulated session recovery
+  path through the real listener contract.
+- [x] Add the Phase 9 discovery artifacts: failure-injection seams plus
+  documented procedures, a multi-device matrix, and an initial performance
+  baseline.
+- [x] Re-run the boundary audit for Phase 9, run focused verification, rebuild
+  `graphify-out/`, and commit the remaining slice with a detailed message.
 
 ## Review
 
@@ -134,6 +136,23 @@
 - The Phase 7-8 boundary audit now lives in `BOUNDARY_CHECK.md`, and the stale
   unchecked items for bootstrap lifecycle surface, ABI matrix documentation, and
   the failure taxonomy have been corrected to match the current repo state.
+- Final Phase 7 validation slice landed on 2026-04-16: `EnvironmentValidator`
+  now covers missing binaries, executable-bit drift, corrupted installs, ABI
+  mismatch, and sandbox invalidation through an explicit file-access seam, and
+  refresh-time tests prove those degraded causes surface as named runtime state
+  instead of silent breakage.
+- Phase 9 normalization landed on 2026-04-16:
+  `docs/ds-normalization.md` commits the DS table, and `sample-app/` now keeps
+  raw iTermux states inside `iTermuxDsStateMapper` plus
+  `iTermuxDsLifecycleRecorder`.
+- The minimal DS spike landed on 2026-04-16: `sample-app/MainActivity` now
+  registers the lifecycle listener, displays normalized DS runtime state,
+  exercises a native session recovery path, and records a proot session snapshot
+  without pushing DS policy back into `core/`.
+- Phase 9 discovery artifacts landed on 2026-04-16:
+  `docs/failure-injection.md` records the injected scenarios and their test
+  seams, `docs/phase9-discovery.md` records the device matrix plus the first
+  host-side baseline, and `BOUNDARY_CHECK.md` now includes the Phase 9 audit.
 - Focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
@@ -142,6 +161,18 @@
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
 - ABI slice verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxBootstrapResolverTest" --tests "com.darkian.itermux.core.iTermuxBootstrapAssetsTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
+- Final Phase 7-9 verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxEnvironmentValidatorTest" --tests "com.darkian.itermux.core.iTermuxRuntimeRefreshTest" --console=plain`,
+  `./gradlew.bat :sample-app:testDebugUnitTest --tests "com.darkian.itermux.sample.iTermuxDsStateMapperTest" --tests "com.darkian.itermux.sample.iTermuxDsLifecycleRecorderTest" --console=plain`,
+  `./gradlew.bat :sample-app:testDebugUnitTest --tests "com.darkian.itermux.sample.iTermuxPerformanceBaselineProbeTest" --rerun-tasks --console=plain --info`,
+  `./gradlew.bat :sample-app:testDebugUnitTest --console=plain`,
+  `./gradlew.bat :core:testDebugUnitTest --console=plain`,
+  `./gradlew.bat :proot-plugin:testDebugUnitTest --console=plain`,
+  `./gradlew.bat assembleDebug --console=plain`,
+  `powershell -ExecutionPolicy Bypass -File tools/verify-no-termux-literals.ps1`,
+  `powershell -ExecutionPolicy Bypass -File tools/verify-supported-packages-sync.ps1`,
+  `bash -x tools/merge-check.sh origin/main HEAD` (`SAFE`),
+  and `python -c "from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code(Path('.'))"`.
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
 - State-machine slice verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxBootstrapStateMachineTest" --console=plain`,
