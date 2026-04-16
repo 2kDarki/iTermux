@@ -17,6 +17,14 @@ import java.io.InputStream
 object iTermux {
     private const val TAG = "iTermux"
 
+    fun addLifecycleListener(listener: iTermuxRuntimeLifecycleListener) {
+        iTermuxLifecycleRegistry.addListener(listener)
+    }
+
+    fun removeLifecycleListener(listener: iTermuxRuntimeLifecycleListener) {
+        iTermuxLifecycleRegistry.removeListener(listener)
+    }
+
     fun initialize(
         context: Context,
         config: iTermuxConfig = iTermuxConfig(),
@@ -42,6 +50,7 @@ object iTermux {
                 "No packaged bootstrap variant matched device ABIs $supportedAbis",
             )
         }
+        iTermuxLifecycleRegistry.configure(config.lifecycleCallbackThread)
         val isBootstrapPayloadPackaged = hasAsset(
             context = context,
             assetPath = bootstrapAssetPath,
@@ -63,6 +72,8 @@ object iTermux {
                     context.assets.open(runtime.bootstrapAssetPath)
                 }
             },
+            bootstrapStateObserver = iTermuxLifecycleRegistry::dispatchBootstrapState,
+            environmentValidationObserver = iTermuxLifecycleRegistry::dispatchEnvironmentValidation,
         )
     }
 
@@ -83,6 +94,8 @@ object iTermux {
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
+            bootstrapStateObserver = iTermuxLifecycleRegistry::dispatchBootstrapState,
+            environmentValidationObserver = iTermuxLifecycleRegistry::dispatchEnvironmentValidation,
         )
     }
 
@@ -95,7 +108,11 @@ object iTermux {
         workingDirectory: String = runtime.defaultWorkingDirectory,
         failSafe: Boolean = false,
     ): iTermuxSession {
-        return runtime.createSession(
+        iTermuxLifecycleRegistry.dispatchSessionState(
+            sessionId = sessionId,
+            state = iTermuxSessionState.STARTING,
+        )
+        val session = runtime.createSession(
             sessionId = sessionId,
             shellBinary = shellBinary,
             baseEnv = baseEnv,
@@ -103,6 +120,11 @@ object iTermux {
             workingDirectory = workingDirectory,
             failSafe = failSafe,
         )
+        iTermuxLifecycleRegistry.dispatchSessionState(
+            sessionId = sessionId,
+            state = iTermuxSessionState.RUNNING,
+        )
+        return session
     }
 
     fun installBootstrap(

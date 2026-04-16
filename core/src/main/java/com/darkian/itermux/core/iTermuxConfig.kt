@@ -17,5 +17,6 @@ data class iTermuxConfig(
     val bootstrapAssetPath: String = "itermux/bootstrap/bootstrap.tar.xz",
     val supportedAbisOverride: List<String>? = null,
     val bootstrapVariants: List<iTermuxBootstrapVariant> = iTermuxBootstrapResolver.defaultVariants(),
+    val lifecycleCallbackThread: iTermuxLifecycleCallbackThread = iTermuxLifecycleCallbackThread.MAIN,
     val hostPackageNameOverride: String? = null,
 )

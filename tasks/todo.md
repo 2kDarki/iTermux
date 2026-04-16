@@ -44,7 +44,7 @@
 
 ### Phase 8 - Contract surface polish
 
-- [ ] Define the lifecycle listener contract in `core/`:
+- [x] Define the lifecycle listener contract in `core/`:
   `onBootstrapState`, `onSessionState`, and `onEnvironmentValidation`, with
   callback-thread delivery controlled by config.
 - [ ] Expand `iTermuxConfig` to cover prefix override, supported ABI override,
@@ -114,6 +114,11 @@
   explicit bootstrap state machine with persisted failure tracking, one allowed
   retry outside the 30-second window, mandatory `VERIFYING` before `READY`, and
   `CORRUPTED`/`FAILED` outcomes when extraction verification does not hold.
+- First Phase 8 slice landed on 2026-04-16: `core/` now exposes a lifecycle
+  listener contract for bootstrap, session, and environment events, dispatches
+  callbacks through a configurable callback-thread policy, and forwards
+  bootstrap/environment notifications from runtime initialization plus
+  `STARTING`/`RUNNING` session events from the public session facade.
 - Focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
@@ -126,4 +131,7 @@
 - State-machine slice verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxBootstrapStateMachineTest" --console=plain`,
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`,
+  and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
+- Lifecycle slice verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxLifecycleListenerTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.

@@ -19,6 +19,8 @@ object iTermuxRuntimeInitializer {
         failSafe: Boolean = false,
         autoInstallBootstrap: Boolean = false,
         bootstrapInstaller: ((iTermuxRuntime) -> iTermuxRuntime)? = null,
+        bootstrapStateObserver: ((iTermuxBootstrapState, iTermuxRuntimeFailureCause?) -> Unit)? = null,
+        environmentValidationObserver: ((iTermuxEnvironmentValidationResult, iTermuxDegradedCause?) -> Unit)? = null,
     ): iTermuxRuntime {
         val identity = iTermuxIdentityResolver.resolve(
             hostPackageName = hostPackageName,
@@ -53,6 +55,8 @@ object iTermuxRuntimeInitializer {
             autoInstallBootstrap = autoInstallBootstrap,
             bootstrapInstaller = bootstrapInstaller,
             bootstrapFailureCauseOverride = bootstrapFailureCauseOverride,
+            bootstrapStateObserver = bootstrapStateObserver,
+            environmentValidationObserver = environmentValidationObserver,
         )
     }
 
@@ -66,6 +70,8 @@ object iTermuxRuntimeInitializer {
         baseEnv: Map<String, String> = emptyMap(),
         extraEnv: Map<String, String> = emptyMap(),
         failSafe: Boolean = false,
+        bootstrapStateObserver: ((iTermuxBootstrapState, iTermuxRuntimeFailureCause?) -> Unit)? = null,
+        environmentValidationObserver: ((iTermuxEnvironmentValidationResult, iTermuxDegradedCause?) -> Unit)? = null,
     ): iTermuxRuntime {
         return refresh(
             identity = iTermuxIdentityResolver.resolve(paths),
@@ -78,6 +84,8 @@ object iTermuxRuntimeInitializer {
             baseEnv = baseEnv,
             extraEnv = extraEnv,
             failSafe = failSafe,
+            bootstrapStateObserver = bootstrapStateObserver,
+            environmentValidationObserver = environmentValidationObserver,
         )
     }
 
@@ -95,6 +103,8 @@ object iTermuxRuntimeInitializer {
         autoInstallBootstrap: Boolean = false,
         bootstrapInstaller: ((iTermuxRuntime) -> iTermuxRuntime)? = null,
         bootstrapFailureCauseOverride: iTermuxRuntimeFailureCause? = null,
+        bootstrapStateObserver: ((iTermuxBootstrapState, iTermuxRuntimeFailureCause?) -> Unit)? = null,
+        environmentValidationObserver: ((iTermuxEnvironmentValidationResult, iTermuxDegradedCause?) -> Unit)? = null,
     ): iTermuxRuntime {
         val environment = iTermuxEnvironment.build(
             paths = paths,
@@ -148,17 +158,37 @@ object iTermuxRuntimeInitializer {
             isBootstrapRequired = isBootstrapRequired,
         )
 
-        return maybeInstallBootstrap(
+        val shouldAutoInstall = autoInstallBootstrap &&
+            runtime.bootstrapState != iTermuxBootstrapState.FAILED &&
+            runtime.isBootstrapRequired &&
+            runtime.isBootstrapPayloadPackaged &&
+            bootstrapInstaller != null
+        if (shouldAutoInstall) {
+            bootstrapStateObserver?.invoke(runtime.bootstrapState, runtime.failureCause)
+        }
+
+        val finalRuntime = maybeInstallBootstrap(
             runtime = runtime,
             autoInstallBootstrap = autoInstallBootstrap,
             bootstrapInstaller = bootstrapInstaller,
+            bootstrapStateObserver = bootstrapStateObserver,
         )
+        if (!shouldAutoInstall) {
+            bootstrapStateObserver?.invoke(finalRuntime.bootstrapState, finalRuntime.failureCause)
+        }
+
+        notifyEnvironmentValidation(
+            runtime = finalRuntime,
+            environmentValidationObserver = environmentValidationObserver,
+        )
+        return finalRuntime
     }
 
     private fun maybeInstallBootstrap(
         runtime: iTermuxRuntime,
         autoInstallBootstrap: Boolean,
         bootstrapInstaller: ((iTermuxRuntime) -> iTermuxRuntime)?,
+        bootstrapStateObserver: ((iTermuxBootstrapState, iTermuxRuntimeFailureCause?) -> Unit)?,
     ): iTermuxRuntime {
         if (runtime.bootstrapState == iTermuxBootstrapState.FAILED) {
             return runtime
@@ -176,6 +206,32 @@ object iTermuxRuntimeInitializer {
         return iTermuxBootstrapStateMachine.bootstrap(
             runtime = runtime,
             bootstrapInstaller = bootstrapInstaller,
+            stateObserver = { state, cause ->
+                bootstrapStateObserver?.invoke(state, cause)
+            },
         )
+    }
+
+    private fun notifyEnvironmentValidation(
+        runtime: iTermuxRuntime,
+        environmentValidationObserver: ((iTermuxEnvironmentValidationResult, iTermuxDegradedCause?) -> Unit)?,
+    ) {
+        when (runtime.bootstrapState) {
+            iTermuxBootstrapState.READY -> {
+                environmentValidationObserver?.invoke(
+                    iTermuxEnvironmentValidationResult.VALID,
+                    null,
+                )
+            }
+
+            iTermuxBootstrapState.DEGRADED -> {
+                environmentValidationObserver?.invoke(
+                    iTermuxEnvironmentValidationResult.DEGRADED,
+                    runtime.degradedCause,
+                )
+            }
+
+            else -> Unit
+        }
     }
 }

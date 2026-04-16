@@ -24,3 +24,13 @@ enum class iTermuxSessionMode {
     COMMAND,
     FILE_COMMAND,
 }
+
+enum class iTermuxSessionState {
+    STARTING,
+    RUNNING,
+    SUSPENDED,
+    KILLED_BY_OS,
+    DEAD,
+    RECOVERING,
+    READY,
+}
