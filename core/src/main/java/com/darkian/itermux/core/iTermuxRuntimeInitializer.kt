@@ -21,6 +21,7 @@ object iTermuxRuntimeInitializer {
         bootstrapInstaller: ((iTermuxRuntime) -> iTermuxRuntime)? = null,
         bootstrapStateObserver: ((iTermuxBootstrapState, iTermuxRuntimeFailureCause?) -> Unit)? = null,
         environmentValidationObserver: ((iTermuxEnvironmentValidationResult, iTermuxDegradedCause?) -> Unit)? = null,
+        environmentFileAccess: iTermuxEnvironmentFileAccess = iTermuxEnvironmentFileAccess(),
     ): iTermuxRuntime {
         val identity = iTermuxIdentityResolver.resolve(
             hostPackageName = hostPackageName,
@@ -58,6 +59,7 @@ object iTermuxRuntimeInitializer {
             bootstrapFailureCauseOverride = bootstrapFailureCauseOverride,
             bootstrapStateObserver = bootstrapStateObserver,
             environmentValidationObserver = environmentValidationObserver,
+            environmentFileAccess = environmentFileAccess,
         )
     }
 
@@ -74,6 +76,7 @@ object iTermuxRuntimeInitializer {
         failSafe: Boolean = false,
         bootstrapStateObserver: ((iTermuxBootstrapState, iTermuxRuntimeFailureCause?) -> Unit)? = null,
         environmentValidationObserver: ((iTermuxEnvironmentValidationResult, iTermuxDegradedCause?) -> Unit)? = null,
+        environmentFileAccess: iTermuxEnvironmentFileAccess = iTermuxEnvironmentFileAccess(),
     ): iTermuxRuntime {
         return refresh(
             identity = iTermuxIdentityResolver.resolve(paths),
@@ -89,6 +92,7 @@ object iTermuxRuntimeInitializer {
             failSafe = failSafe,
             bootstrapStateObserver = bootstrapStateObserver,
             environmentValidationObserver = environmentValidationObserver,
+            environmentFileAccess = environmentFileAccess,
         )
     }
 
@@ -109,6 +113,7 @@ object iTermuxRuntimeInitializer {
         bootstrapFailureCauseOverride: iTermuxRuntimeFailureCause? = null,
         bootstrapStateObserver: ((iTermuxBootstrapState, iTermuxRuntimeFailureCause?) -> Unit)? = null,
         environmentValidationObserver: ((iTermuxEnvironmentValidationResult, iTermuxDegradedCause?) -> Unit)? = null,
+        environmentFileAccess: iTermuxEnvironmentFileAccess = iTermuxEnvironmentFileAccess(),
     ): iTermuxRuntime {
         val environment = iTermuxEnvironment.build(
             paths = paths,
@@ -129,6 +134,9 @@ object iTermuxRuntimeInitializer {
             iTermuxEnvironmentValidator.validate(
                 paths = paths,
                 environment = environment,
+                supportedAbis = supportedAbis,
+                bootstrapVariantAbi = bootstrapVariantAbi,
+                fileAccess = environmentFileAccess,
             )
         }
 

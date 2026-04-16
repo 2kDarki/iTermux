@@ -26,6 +26,7 @@ class iTermuxAutoBootstrapTest {
                     ByteArrayInputStream(
                         bootstrapArchive(
                             "bin/sh" to "#!/bin/sh\necho embedded\n",
+                            "bin/env" to "#!/bin/sh\nenv\n",
                             "etc/profile" to "export TERM=xterm-256color\n",
                         ),
                     )

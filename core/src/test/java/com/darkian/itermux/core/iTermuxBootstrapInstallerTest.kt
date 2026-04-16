@@ -27,6 +27,7 @@ class iTermuxBootstrapInstallerTest {
             ByteArrayInputStream(
                 bootstrapArchive(
                     "bin/sh" to "#!/bin/sh\necho embedded\n",
+                    "bin/env" to "#!/bin/sh\nenv\n",
                     "etc/motd" to "hello\n",
                 ),
             )

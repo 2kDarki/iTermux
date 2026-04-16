@@ -178,6 +178,7 @@ class iTermuxLifecycleListenerTest {
         )
         File(initial.paths.binDir).mkdirs()
         File(initial.paths.binDir, "sh").writeText("#!/bin/sh\necho ready\n")
+        File(initial.paths.binDir, "env").writeText("#!/bin/sh\nenv\n")
         File(initial.paths.etcDir).mkdirs()
         File(initial.paths.etcDir, "profile").writeText("export TERM=xterm-256color\n")
         return iTermuxRuntimeInitializer.refresh(

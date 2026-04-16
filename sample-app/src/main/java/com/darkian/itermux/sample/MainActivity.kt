@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.TextView
 import com.darkian.itermux.core.iTermux
 import com.darkian.itermux.core.iTermuxConfig
+import com.darkian.itermux.core.iTermuxSessionState
 import com.darkian.itermux.proot.createProotSession
 import com.darkian.itermux.proot.iTermuxProotDistribution
 import java.io.File
@@ -13,11 +14,21 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val lifecycleRecorder = iTermuxDsLifecycleRecorder()
+        iTermux.addLifecycleListener(lifecycleRecorder.listener)
+
         val runtime = iTermux.initialize(
             this,
             config = iTermuxConfig(prootEnabled = true),
         )
         val nativeSession = iTermux.createSession(runtime, sessionId = "sample")
+        val recoveredNativeSession = iTermux.recoverSessionFromOsKill(nativeSession) { killed ->
+            killed.copy(
+                state = iTermuxSessionState.READY,
+                recoveryAttempts = killed.recoveryAttempts + 1,
+                failureCause = null,
+            )
+        }
         val prootSession = runtime.createProotSession(
             distribution = iTermuxProotDistribution(
                 name = "debian",
@@ -25,9 +36,23 @@ class MainActivity : Activity() {
             ),
             sessionId = "sample-proot",
         )
+        lifecycleRecorder.recordSessionSnapshot(prootSession)
+        iTermux.removeLifecycleListener(lifecycleRecorder.listener)
+
         val message = buildString {
             append("internal-termux sample host\n\n")
-            append("Initialized host-owned runtime.\n")
+            append("Minimal DS spike over the iTermux lifecycle contract.\n")
+            append("normalizedRuntimeState: ")
+            append(lifecycleRecorder.normalizedState)
+            append("\nlastBootstrapState: ")
+            append(lifecycleRecorder.lastBootstrapState ?: "<none>")
+            append("\nlastBootstrapFailure: ")
+            append(lifecycleRecorder.lastBootstrapFailureCause ?: "<none>")
+            append("\nlastValidationResult: ")
+            append(lifecycleRecorder.lastEnvironmentValidation ?: "<none>")
+            append("\nlastDegradedCause: ")
+            append(lifecycleRecorder.lastDegradedCause ?: "<none>")
+            append("\n\nInitialized host-owned runtime.\n")
             append("filesDir: ")
             append(runtime.paths.filesDir)
             append("\npackageName: ")
@@ -55,17 +80,19 @@ class MainActivity : Activity() {
             append("\nbootstrapPayloadPackaged: ")
             append(runtime.isBootstrapPayloadPackaged)
             append("\nnativeSessionId: ")
-            append(nativeSession.id)
+            append(recoveredNativeSession.id)
             append("\nnativeBackend: ")
-            append(nativeSession.backend.id)
+            append(recoveredNativeSession.backend.id)
             append("\nnativeSessionMode: ")
-            append(nativeSession.mode)
+            append(recoveredNativeSession.mode)
             append("\nnativeSessionState: ")
-            append(nativeSession.state)
+            append(recoveredNativeSession.state)
+            append("\nnativeRecoveryAttempts: ")
+            append(recoveredNativeSession.recoveryAttempts)
             append("\nnativeFailureCause: ")
-            append(nativeSession.failureCause ?: "<none>")
+            append(recoveredNativeSession.failureCause ?: "<none>")
             append("\nnativeExecutable: ")
-            append(nativeSession.shellSpec.executable)
+            append(recoveredNativeSession.shellSpec.executable)
             append("\nprootSessionId: ")
             append(prootSession.id)
             append("\nprootBackend: ")
@@ -80,6 +107,13 @@ class MainActivity : Activity() {
             append(prootSession.shellSpec.arguments.joinToString(" "))
             append("\nPATH: ")
             append(runtime.environment["PATH"])
+            append("\n\nLifecycle timeline:\n")
+            lifecycleRecorder.eventLines().forEachIndexed { index, line ->
+                append(index + 1)
+                append(". ")
+                append(line)
+                append('\n')
+            }
         }
 
         setContentView(
