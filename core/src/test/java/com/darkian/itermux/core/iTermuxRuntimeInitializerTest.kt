@@ -27,6 +27,8 @@ class iTermuxRuntimeInitializerTest {
         assertEquals(listOf("bash", "coreutils"), runtime.supportedPackages)
         assertEquals("$filesDir/usr/bin", runtime.environment["PATH"])
         assertEquals(runtime.paths.homeDir, runtime.defaultWorkingDirectory)
+        assertEquals(iTermuxBootstrapState.UNINITIALIZED, runtime.bootstrapState)
+        assertNull(runtime.failureCause)
         assertNull(runtime.selectedPropertiesFile)
         assertTrue(File(runtime.paths.prefixDir).isDirectory())
         assertTrue(File(runtime.paths.homeDir).isDirectory())
@@ -79,5 +81,6 @@ class iTermuxRuntimeInitializerTest {
             runtime.selectedPropertiesFile,
         )
         assertEquals(configuredDirectory.absolutePath, runtime.defaultWorkingDirectory)
+        assertEquals(iTermuxBootstrapState.UNINITIALIZED, runtime.bootstrapState)
     }
 }

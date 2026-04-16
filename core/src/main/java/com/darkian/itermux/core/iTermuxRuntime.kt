@@ -12,6 +12,8 @@ data class iTermuxRuntime(
     val supportedPackages: List<String>,
     val bootstrapAssetPath: String,
     val isBootstrapPayloadPackaged: Boolean,
+    val bootstrapState: iTermuxBootstrapState,
+    val failureCause: iTermuxRuntimeFailureCause?,
     val properties: Map<String, String>,
     val selectedPropertiesFile: String?,
     val defaultWorkingDirectory: String,

@@ -96,6 +96,12 @@ object iTermuxRuntimeInitializer {
             supportedPackages = supportedPackages,
             bootstrapAssetPath = bootstrapAssetPath,
             isBootstrapPayloadPackaged = isBootstrapPayloadPackaged,
+            bootstrapState = if (isBootstrapRequired) {
+                iTermuxBootstrapState.UNINITIALIZED
+            } else {
+                iTermuxBootstrapState.READY
+            },
+            failureCause = null,
             properties = properties,
             selectedPropertiesFile = selectedPropertiesFile,
             defaultWorkingDirectory = defaultWorkingDirectory,
@@ -124,6 +130,18 @@ object iTermuxRuntimeInitializer {
         checkNotNull(bootstrapInstaller) {
             "A bootstrap installer is required when auto-installing a packaged payload."
         }
-        return bootstrapInstaller(runtime)
+        return runCatching {
+            bootstrapInstaller(
+                runtime.copy(
+                    bootstrapState = iTermuxBootstrapState.EXTRACTING,
+                    failureCause = null,
+                ),
+            )
+        }.getOrElse {
+            runtime.copy(
+                bootstrapState = iTermuxBootstrapState.FAILED,
+                failureCause = iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED,
+            )
+        }
     }
 }

@@ -6,6 +6,7 @@ import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertNull
 import org.junit.Test
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -33,6 +34,8 @@ class iTermuxAutoBootstrapTest {
         )
 
         assertFalse(runtime.isBootstrapRequired)
+        assertEquals(iTermuxBootstrapState.READY, runtime.bootstrapState)
+        assertNull(runtime.failureCause)
         assertEquals(
             "#!/bin/sh\necho embedded\n",
             java.io.File(runtime.paths.binDir, "sh").readText(),
@@ -55,7 +58,25 @@ class iTermuxAutoBootstrapTest {
         )
 
         assertTrue(runtime.isBootstrapRequired)
+        assertEquals(iTermuxBootstrapState.UNINITIALIZED, runtime.bootstrapState)
         assertFalse(installerInvoked)
+    }
+
+    @Test
+    fun initializeConvertsAutoInstallFailuresIntoFailedBootstrapState() {
+        val runtime = iTermuxRuntimeInitializer.initialize(
+            filesDir = Files.createTempDirectory("itermux-auto-bootstrap-failed").toFile().absolutePath,
+            hostPackageName = "com.darkian.host",
+            isBootstrapPayloadPackaged = true,
+            autoInstallBootstrap = true,
+            bootstrapInstaller = {
+                error("simulated bootstrap extraction failure")
+            },
+        )
+
+        assertTrue(runtime.isBootstrapRequired)
+        assertEquals(iTermuxBootstrapState.FAILED, runtime.bootstrapState)
+        assertEquals(iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED, runtime.failureCause)
     }
 
     private fun bootstrapArchive(vararg entries: Pair<String, String>): ByteArray {

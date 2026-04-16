@@ -6,41 +6,101 @@
 - [x] Phase 1 runtime-derived prefix, environment, and shell seams are in place.
 - [x] Phase 2 namespace migration, merge markers, and literal checks are in place.
 - [x] Phase 3 library-module conversion is in place: `core/` and `proot-plugin/` are Android libraries, and `sample-app/` is the host app.
+- [x] Phase 4 packaged bootstrap install and refresh flow are in place.
+- [x] Phase 5 shared native/proot session contract is in place.
+- [x] Phase 6 merge-protection tooling and docs are in place.
 
-## One remaining task list
+## Phase 7-9 implementation plan
 
-- [x] Commit a real minimal bootstrap payload under `core` assets instead of only exposing the expected asset path.
-- [x] Make `iTermux.initialize()` install the packaged bootstrap automatically on cold start and refresh runtime state before returning.
-- [x] Add serial unit coverage for offline bootstrap-on-init behavior and packaged asset expectations.
-- [x] Replace the placeholder `proot-plugin/` surface with a real optional session launcher built on the shared host-facing session contract.
-- [x] Generalize session metadata so native and plugin-provided sessions share one contract without hardwiring proot into `core`.
-- [x] Verify native and proot session creation from the same host API surface while keeping environment bleed-through opt-in only.
-- [x] Replace the placeholder `tools/merge-check.sh` with tagged-file upstream diff detection and actionable `SAFE` / `REVIEW` / `CONFLICT` output.
-- [x] Document the upstream sync and merge-protection workflow and align stale repo docs with the current implementation reality.
-- [x] Delete stale planning notes and other redundant docs that no longer reflect the active roadmap state.
-- [x] Run serial verification across unit tests, app assembly, literal checks, package sync checks, and merge-check behavior.
+### Phase 7 - Gap closure foundation
+
+- [ ] Replace the boolean bootstrap readiness model with an explicit lifecycle surface:
+  `BootstrapState`, bootstrap failure causes, and runtime fields that make
+  `EXTRACTING`, `PARTIAL`, `VERIFYING`, `FAILED`, `READY`, and `DEGRADED`
+  first-class state instead of derived guesswork.
+- [ ] Implement a bootstrap state machine in `core/` that performs full
+  re-extraction on the single allowed retry, enforces the 30-second retry gate,
+  and makes `VERIFYING` mandatory before `READY`.
+- [ ] Add ABI-aware bootstrap selection with `BootstrapResolver`, supported ABI
+  overrides in config, and a named unsupported-ABI failure path before any
+  extraction work begins.
+- [ ] Add fast-path environment validation on `init()` via
+  `EnvironmentValidator`, including `DegradedCause` coverage for missing
+  binaries, executable-bit drift, corrupted installs, ABI mismatch, and sandbox
+  invalidation.
+- [ ] Convert bootstrap failures from unchecked exceptions to named runtime
+  failure causes so the host sees state transitions instead of surprise throws.
+
+### Phase 7 - Session lifecycle hardening
+
+- [ ] Extend the host-facing session model with `SessionState`, recovery
+  bookkeeping, and restart semantics that allow exactly one self-restoration
+  attempt after `KILLED_BY_OS`.
+- [ ] Implement the session transition controller in `core/` without pushing
+  policy decisions into the runtime boundary.
+- [ ] Add verified kill-and-recovery tests that prove `RUNNING` ->
+  `KILLED_BY_OS` -> `RECOVERING` -> `READY` on success and `RUNNING` ->
+  `KILLED_BY_OS` -> `DEAD` on exhausted recovery.
+
+### Phase 8 - Contract surface polish
+
+- [ ] Define the lifecycle listener contract in `core/`:
+  `onBootstrapState`, `onSessionState`, and `onEnvironmentValidation`, with
+  callback-thread delivery controlled by config.
+- [ ] Expand `iTermuxConfig` to cover prefix override, supported ABI override,
+  bootstrap asset key/variant selection, callback-thread selection, and proot
+  enablement without leaking host policy into `core/`.
+- [ ] Close the failure taxonomy around the runtime contract so bootstrap,
+  environment, and session failures all use named causes.
+- [ ] Write the Phase 7-8 boundary audit into `BOUNDARY_CHECK.md`, one
+  component at a time, and move any policy logic out of `core/` if the audit
+  finds drift.
+- [ ] Update `AUDIT.md` with the supported ABI matrix and any new bootstrap
+  assumptions introduced by the ABI split.
+
+### Phase 9 - DS integration and discovery
+
+- [ ] Define and commit the DS normalization table that maps high-resolution
+  iTermux states onto DS runtime states before integration code starts.
+- [ ] Add a minimal DS integration spike in `sample-app/` that exercises the
+  full lifecycle contract, including bootstrap load and session recovery paths.
+- [ ] Add failure-injection seams and documented test procedures for interrupted
+  extraction, repeated failure within the retry window, corrupted bootstrap,
+  unsupported ABI, recoverable degradation, structural degradation, and session
+  kill recovery.
+- [ ] Record the multi-device test matrix and capture a first performance
+  baseline for cold init, warm init, shell prompt, idle memory, and recovery
+  latency.
+- [ ] Re-run the boundary audit after DS integration stabilizes and record the
+  findings in `BOUNDARY_CHECK.md` before closing Phase 9.
+
+## Current execution slice
+
+- [x] Start with Phase 7 bootstrap contract work in this order:
+  1. failing tests for bootstrap lifecycle state + failure cause surfacing
+  2. runtime model changes
+  3. state-machine extraction flow
+  4. focused verification
+  5. graph rebuild
+  6. detailed commit
 
 ## Review
 
-- Roadmap reality on 2026-04-15: the remaining work is concentrated in Phase 4
-  auto-bootstrap, Phase 5 shared proot integration, and Phase 6 merge
-  protection. The earlier queue items in the previous todo file were stale and
-  have been collapsed into the single checklist above.
-- Phase 4 now has a committed offline bootstrap payload at
-  `core/src/main/assets/itermux/bootstrap/bootstrap.tar.xz`, and the public
-  `iTermux.initialize()` path auto-installs it on cold start before returning
-  runtime state.
-- Phase 5 now keeps proot optional while sharing the same host-facing session
-  contract: native sessions come from `core`, proot sessions come from
-  `proot-plugin`, and environment inheritance across that boundary is opt-in.
-- Phase 6 now has a real `tools/merge-check.sh`, upstream sync documentation in
-  `docs/upstream-sync.md`, refreshed top-level docs, and the stale Phase 0
-  planning note has been deleted.
-- Verification on 2026-04-15:
-  `./gradlew.bat :core:testDebugUnitTest`,
-  `./gradlew.bat :proot-plugin:testDebugUnitTest`,
-  `./gradlew.bat assembleDebug`,
-  `powershell -ExecutionPolicy Bypass -File tools/verify-no-termux-literals.ps1`,
-  `powershell -ExecutionPolicy Bypass -File tools/verify-supported-packages-sync.ps1`,
-  `bash -x tools/merge-check.sh origin/main HEAD`,
-  and `python -c "from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code(Path('.'))"`.
+- Roadmap reality on 2026-04-16: Phase 7 is the next true implementation phase.
+  The current `core/` surface still models bootstrap readiness as
+  `isBootstrapRequired: Boolean` and session creation as static metadata, so the
+  roadmap work starts with runtime contract reshaping rather than DS-facing UI.
+- Phase 9 remains intentionally blocked on a stable Phase 8 contract surface.
+  The sample app can be used as the DS integration spike once lifecycle events,
+  failure causes, and normalization seams exist.
+- First implementation slice: bootstrap state machine and failure-cause
+  surfacing in `core/`, driven test-first from the existing runtime initializer
+  and bootstrap installer seams.
+- First Phase 7 slice landed on 2026-04-16: `core/` now exposes explicit
+  bootstrap state and named runtime failure causes, and auto-bootstrap
+  extraction failures return `FAILED` with
+  `BOOTSTRAP_EXTRACTION_FAILED` instead of throwing through the library
+  boundary.
+- Focused verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
+  and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
