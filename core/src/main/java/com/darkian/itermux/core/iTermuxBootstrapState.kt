@@ -30,3 +30,14 @@ enum class iTermuxRuntimeFailureCause {
     ENVIRONMENT_DEGRADED,
     PROOT_UNAVAILABLE,
 }
+
+/**
+ * Named causes for a degraded runtime after bootstrap extraction has completed.
+ */
+enum class iTermuxDegradedCause {
+    MISSING_BINARY,
+    PERMISSION_CHANGED,
+    CORRUPTED_INSTALL,
+    ABI_MISMATCH,
+    SANDBOX_INVALIDATED,
+}

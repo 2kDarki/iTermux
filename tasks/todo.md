@@ -101,6 +101,13 @@
   extraction failures return `FAILED` with
   `BOOTSTRAP_EXTRACTION_FAILED` instead of throwing through the library
   boundary.
+- Second Phase 7 slice landed on 2026-04-16: refresh-time environment validation
+  now distinguishes valid extracted runtimes from degraded ones, surfacing
+  `DEGRADED` with a named `DegradedCause` when the prefix structure exists but
+  the core shell contract is broken.
 - Focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
+  and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
+- Additional focused verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeRefreshTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.

@@ -88,6 +88,25 @@ object iTermuxRuntimeInitializer {
         val properties = iTermuxProperties.load(paths)
         val defaultWorkingDirectory = iTermuxWorkingDirectory.resolve(paths, properties)
         val isBootstrapRequired = iTermuxPrefixState.isBootstrapRequired(paths)
+        val validation = if (isBootstrapRequired) {
+            null
+        } else {
+            iTermuxEnvironmentValidator.validate(
+                paths = paths,
+                environment = environment,
+            )
+        }
+
+        val bootstrapState = when {
+            isBootstrapRequired -> iTermuxBootstrapState.UNINITIALIZED
+            validation?.result == iTermuxEnvironmentValidationResult.DEGRADED -> iTermuxBootstrapState.DEGRADED
+            else -> iTermuxBootstrapState.READY
+        }
+        val failureCause = if (validation?.result == iTermuxEnvironmentValidationResult.DEGRADED) {
+            iTermuxRuntimeFailureCause.ENVIRONMENT_DEGRADED
+        } else {
+            null
+        }
 
         val runtime = iTermuxRuntime(
             identity = identity,
@@ -96,12 +115,9 @@ object iTermuxRuntimeInitializer {
             supportedPackages = supportedPackages,
             bootstrapAssetPath = bootstrapAssetPath,
             isBootstrapPayloadPackaged = isBootstrapPayloadPackaged,
-            bootstrapState = if (isBootstrapRequired) {
-                iTermuxBootstrapState.UNINITIALIZED
-            } else {
-                iTermuxBootstrapState.READY
-            },
-            failureCause = null,
+            bootstrapState = bootstrapState,
+            failureCause = failureCause,
+            degradedCause = validation?.degradedCause,
             properties = properties,
             selectedPropertiesFile = selectedPropertiesFile,
             defaultWorkingDirectory = defaultWorkingDirectory,
@@ -135,12 +151,14 @@ object iTermuxRuntimeInitializer {
                 runtime.copy(
                     bootstrapState = iTermuxBootstrapState.EXTRACTING,
                     failureCause = null,
+                    degradedCause = null,
                 ),
             )
         }.getOrElse {
             runtime.copy(
                 bootstrapState = iTermuxBootstrapState.FAILED,
                 failureCause = iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED,
+                degradedCause = null,
             )
         }
     }
