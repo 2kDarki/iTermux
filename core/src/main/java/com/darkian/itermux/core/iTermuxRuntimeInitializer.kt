@@ -173,20 +173,9 @@ object iTermuxRuntimeInitializer {
         checkNotNull(bootstrapInstaller) {
             "A bootstrap installer is required when auto-installing a packaged payload."
         }
-        return runCatching {
-            bootstrapInstaller(
-                runtime.copy(
-                    bootstrapState = iTermuxBootstrapState.EXTRACTING,
-                    failureCause = null,
-                    degradedCause = null,
-                ),
-            )
-        }.getOrElse {
-            runtime.copy(
-                bootstrapState = iTermuxBootstrapState.FAILED,
-                failureCause = iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED,
-                degradedCause = null,
-            )
-        }
+        return iTermuxBootstrapStateMachine.bootstrap(
+            runtime = runtime,
+            bootstrapInstaller = bootstrapInstaller,
+        )
     }
 }

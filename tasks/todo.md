@@ -18,7 +18,7 @@
   `BootstrapState`, bootstrap failure causes, and runtime fields that make
   `EXTRACTING`, `PARTIAL`, `VERIFYING`, `FAILED`, `READY`, and `DEGRADED`
   first-class state instead of derived guesswork.
-- [ ] Implement a bootstrap state machine in `core/` that performs full
+- [x] Implement a bootstrap state machine in `core/` that performs full
   re-extraction on the single allowed retry, enforces the 30-second retry gate,
   and makes `VERIFYING` mandatory before `READY`.
 - [x] Add ABI-aware bootstrap selection with `BootstrapResolver`, supported ABI
@@ -110,6 +110,10 @@
   variant on the runtime, fails early with `UNSUPPORTED_ABI` when no variant
   matches, and ships mirrored per-ABI bootstrap assets for `arm64-v8a`,
   `armeabi-v7a`, and `x86_64`.
+- Fourth Phase 7 slice landed on 2026-04-16: auto-bootstrap now runs through an
+  explicit bootstrap state machine with persisted failure tracking, one allowed
+  retry outside the 30-second window, mandatory `VERIFYING` before `READY`, and
+  `CORRUPTED`/`FAILED` outcomes when extraction verification does not hold.
 - Focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
@@ -118,4 +122,8 @@
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
 - ABI slice verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxBootstrapResolverTest" --tests "com.darkian.itermux.core.iTermuxBootstrapAssetsTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
+  and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
+- State-machine slice verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxBootstrapStateMachineTest" --console=plain`,
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`,
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
