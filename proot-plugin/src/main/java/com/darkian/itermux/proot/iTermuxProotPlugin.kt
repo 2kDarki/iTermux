@@ -2,10 +2,14 @@ package com.darkian.itermux.proot
 
 import com.darkian.itermux.core.iTermuxEnvironment
 import com.darkian.itermux.core.iTermuxRuntime
+import com.darkian.itermux.core.iTermuxRuntimeFailureCause
 import com.darkian.itermux.core.iTermuxSession
 import com.darkian.itermux.core.iTermuxSessionBackend
+import com.darkian.itermux.core.iTermuxSessionController
 import com.darkian.itermux.core.iTermuxSessionMode
+import com.darkian.itermux.core.iTermuxSessionState
 import com.darkian.itermux.core.iTermuxShellSpec
+import com.darkian.itermux.core.sessionStartFailureCause
 
 /**
  * Optional proot launcher that stays outside the core runtime module while
@@ -28,37 +32,69 @@ object iTermuxProotPlugin {
             executable = "${runtime.paths.binDir}/proot",
         ),
     ): iTermuxSession {
-        val mergedBaseEnv = linkedMapOf<String, String>()
-        if (inheritRuntimeEnvironment) {
-            mergedBaseEnv.putAll(runtime.environment)
+        val startFailureCause = when {
+            !runtime.isProotEnabled -> iTermuxRuntimeFailureCause.PROOT_UNAVAILABLE
+            else -> runtime.sessionStartFailureCause()
         }
-        mergedBaseEnv.putAll(baseEnv)
 
-        val mergedExtraEnv = linkedMapOf(
-            "ITERMUX_SESSION_BACKEND" to BACKEND.id,
-            "PROOT_DISTRO_NAME" to distribution.name,
-            "PROOT_DISTRO_ROOTFS" to distribution.rootfsPath,
-        )
-        mergedExtraEnv.putAll(extraEnv)
+        return iTermuxSessionController.start(
+            sessionId = sessionId,
+            sessionFactory = {
+                check(startFailureCause == null) {
+                    "Session cannot start because $startFailureCause."
+                }
+                val mergedBaseEnv = linkedMapOf<String, String>()
+                if (inheritRuntimeEnvironment) {
+                    mergedBaseEnv.putAll(runtime.environment)
+                }
+                mergedBaseEnv.putAll(baseEnv)
 
-        return iTermuxSession(
-            id = sessionId,
-            backend = BACKEND,
-            mode = iTermuxSessionMode.LOGIN_SHELL,
-            shellSpec = iTermuxShellSpec(
-                executable = config.executable,
-                arguments = buildArguments(
-                    distribution = distribution,
-                    shellArguments = shellArguments,
-                    config = config,
-                ),
-                workingDirectory = runtime.defaultWorkingDirectory,
-                environment = iTermuxEnvironment.build(
-                    paths = runtime.paths,
-                    baseEnv = mergedBaseEnv,
-                    extraEnv = mergedExtraEnv,
-                ),
-            ),
+                val mergedExtraEnv = linkedMapOf(
+                    "ITERMUX_SESSION_BACKEND" to BACKEND.id,
+                    "PROOT_DISTRO_NAME" to distribution.name,
+                    "PROOT_DISTRO_ROOTFS" to distribution.rootfsPath,
+                )
+                mergedExtraEnv.putAll(extraEnv)
+
+                iTermuxSession(
+                    id = sessionId,
+                    backend = BACKEND,
+                    mode = iTermuxSessionMode.LOGIN_SHELL,
+                    shellSpec = iTermuxShellSpec(
+                        executable = config.executable,
+                        arguments = buildArguments(
+                            distribution = distribution,
+                            shellArguments = shellArguments,
+                            config = config,
+                        ),
+                        workingDirectory = runtime.defaultWorkingDirectory,
+                        environment = iTermuxEnvironment.build(
+                            paths = runtime.paths,
+                            baseEnv = mergedBaseEnv,
+                            extraEnv = mergedExtraEnv,
+                        ),
+                    ),
+                )
+            },
+            failureSessionFactory = {
+                iTermuxSession(
+                    id = sessionId,
+                    backend = BACKEND,
+                    mode = iTermuxSessionMode.LOGIN_SHELL,
+                    shellSpec = iTermuxShellSpec(
+                        executable = config.executable,
+                        arguments = buildArguments(
+                            distribution = distribution,
+                            shellArguments = shellArguments,
+                            config = config,
+                        ),
+                        workingDirectory = runtime.defaultWorkingDirectory,
+                        environment = runtime.environment,
+                    ),
+                    state = iTermuxSessionState.DEAD,
+                    failureCause = startFailureCause ?: iTermuxRuntimeFailureCause.SESSION_START_FAILED,
+                )
+            },
         )
     }
 

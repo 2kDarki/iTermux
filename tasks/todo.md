@@ -14,7 +14,7 @@
 
 ### Phase 7 - Gap closure foundation
 
-- [ ] Replace the boolean bootstrap readiness model with an explicit lifecycle surface:
+- [x] Replace the boolean bootstrap readiness model with an explicit lifecycle surface:
   `BootstrapState`, bootstrap failure causes, and runtime fields that make
   `EXTRACTING`, `PARTIAL`, `VERIFYING`, `FAILED`, `READY`, and `DEGRADED`
   first-class state instead of derived guesswork.
@@ -28,17 +28,17 @@
   `EnvironmentValidator`, including `DegradedCause` coverage for missing
   binaries, executable-bit drift, corrupted installs, ABI mismatch, and sandbox
   invalidation.
-- [ ] Convert bootstrap failures from unchecked exceptions to named runtime
+- [x] Convert bootstrap failures from unchecked exceptions to named runtime
   failure causes so the host sees state transitions instead of surprise throws.
 
 ### Phase 7 - Session lifecycle hardening
 
-- [ ] Extend the host-facing session model with `SessionState`, recovery
+- [x] Extend the host-facing session model with `SessionState`, recovery
   bookkeeping, and restart semantics that allow exactly one self-restoration
   attempt after `KILLED_BY_OS`.
-- [ ] Implement the session transition controller in `core/` without pushing
+- [x] Implement the session transition controller in `core/` without pushing
   policy decisions into the runtime boundary.
-- [ ] Add verified kill-and-recovery tests that prove `RUNNING` ->
+- [x] Add verified kill-and-recovery tests that prove `RUNNING` ->
   `KILLED_BY_OS` -> `RECOVERING` -> `READY` on success and `RUNNING` ->
   `KILLED_BY_OS` -> `DEAD` on exhausted recovery.
 
@@ -50,12 +50,12 @@
 - [x] Expand `iTermuxConfig` to cover prefix override, supported ABI override,
   bootstrap asset key/variant selection, callback-thread selection, and proot
   enablement without leaking host policy into `core/`.
-- [ ] Close the failure taxonomy around the runtime contract so bootstrap,
+- [x] Close the failure taxonomy around the runtime contract so bootstrap,
   environment, and session failures all use named causes.
-- [ ] Write the Phase 7-8 boundary audit into `BOUNDARY_CHECK.md`, one
+- [x] Write the Phase 7-8 boundary audit into `BOUNDARY_CHECK.md`, one
   component at a time, and move any policy logic out of `core/` if the audit
   finds drift.
-- [ ] Update `AUDIT.md` with the supported ABI matrix and any new bootstrap
+- [x] Update `AUDIT.md` with the supported ABI matrix and any new bootstrap
   assumptions introduced by the ABI split.
 
 ### Phase 9 - DS integration and discovery
@@ -76,13 +76,16 @@
 
 ## Current execution slice
 
-- [x] Start with Phase 7 bootstrap contract work in this order:
-  1. failing tests for bootstrap lifecycle state + failure cause surfacing
-  2. runtime model changes
-  3. state-machine extraction flow
-  4. focused verification
-  5. graph rebuild
-  6. detailed commit
+- [x] Finish the earlier Phase 7 bootstrap/config slices before moving to
+  session hardening.
+- [x] Work the next slice in this order:
+  1. failing tests for session state bookkeeping and one-shot recovery
+  2. session controller + named failure-cause wiring for native/proot starts
+  3. lifecycle callback coverage for recovery paths
+  4. boundary-check doc + stale checklist correction
+  5. focused verification
+  6. graph rebuild
+  7. detailed commit
 
 ## Review
 
@@ -123,6 +126,14 @@
   prefix override, ABI override, bootstrap variant selection inputs, callback
   thread selection, and proot enablement, while path resolution and runtime
   metadata preserve those choices without pushing interpretation into `core/`.
+- Third Phase 7 slice on 2026-04-16 closed the session hardening gap:
+  `iTermuxSession` now carries lifecycle state, recovery bookkeeping, and named
+  failure causes; `iTermuxSessionController` owns start/suspend/resume/recovery
+  transitions; native/proot session starts now fail with named causes instead
+  of surfacing unchecked exceptions through the host boundary.
+- The Phase 7-8 boundary audit now lives in `BOUNDARY_CHECK.md`, and the stale
+  unchecked items for bootstrap lifecycle surface, ABI matrix documentation, and
+  the failure taxonomy have been corrected to match the current repo state.
 - Focused verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --tests "com.darkian.itermux.core.iTermuxAutoBootstrapTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
@@ -142,3 +153,15 @@
 - Config slice verification on 2026-04-16:
   `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxPathResolverTest" --tests "com.darkian.itermux.core.iTermuxRuntimeInitializerTest" --console=plain`
   and `./gradlew.bat :core:testDebugUnitTest --console=plain`.
+- Session slice verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxSessionControllerTest" --tests "com.darkian.itermux.core.iTermuxNativeSessionTest" --tests "com.darkian.itermux.core.iTermuxLifecycleListenerTest" --console=plain`,
+  `./gradlew.bat :proot-plugin:testDebugUnitTest --tests "com.darkian.itermux.proot.iTermuxProotPluginTest" --console=plain`,
+  and `./gradlew.bat :core:testDebugUnitTest --tests "com.darkian.itermux.core.iTermuxBootstrapInstallerTest" --console=plain`.
+- Full slice verification on 2026-04-16:
+  `./gradlew.bat :core:testDebugUnitTest --console=plain`,
+  `./gradlew.bat :proot-plugin:testDebugUnitTest --console=plain`,
+  `./gradlew.bat assembleDebug --console=plain`,
+  `powershell -ExecutionPolicy Bypass -File tools/verify-no-termux-literals.ps1`,
+  `powershell -ExecutionPolicy Bypass -File tools/verify-supported-packages-sync.ps1`,
+  `bash -x tools/merge-check.sh origin/main HEAD`,
+  and `python -c "from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code(Path('.'))"`.

@@ -87,10 +87,7 @@ class iTermuxLifecycleListenerTest {
 
     @Test
     fun createSessionDispatchesStartingAndRunningStatesToRegisteredListener() {
-        val runtime = iTermuxRuntimeInitializer.initialize(
-            filesDir = Files.createTempDirectory("itermux-lifecycle-session").toFile().absolutePath,
-            hostPackageName = "com.darkian.host",
-        )
+        val runtime = readyRuntime("itermux-lifecycle-session")
         val sessionStates = mutableListOf<Pair<String, iTermuxSessionState>>()
         val listener = object : iTermuxRuntimeLifecycleListener {
             override fun onBootstrapState(
@@ -126,5 +123,72 @@ class iTermuxLifecycleListenerTest {
         } finally {
             iTermux.removeLifecycleListener(listener)
         }
+    }
+
+    @Test
+    fun sessionRecoveryDispatchesKillRecoveringAndReadyStatesToRegisteredListener() {
+        val runtime = readyRuntime("itermux-lifecycle-session-recovery")
+        val sessionStates = mutableListOf<Pair<String, iTermuxSessionState>>()
+        val listener = object : iTermuxRuntimeLifecycleListener {
+            override fun onBootstrapState(
+                state: iTermuxBootstrapState,
+                cause: iTermuxRuntimeFailureCause?,
+            ) = Unit
+
+            override fun onSessionState(
+                sessionId: String,
+                state: iTermuxSessionState,
+            ) {
+                sessionStates += sessionId to state
+            }
+
+            override fun onEnvironmentValidation(
+                result: iTermuxEnvironmentValidationResult,
+                cause: iTermuxDegradedCause?,
+            ) = Unit
+        }
+
+        iTermux.addLifecycleListener(listener)
+        try {
+            val session = iTermux.createSession(runtime = runtime, sessionId = "recoverable-session")
+            val recovered = iTermux.recoverSessionFromOsKill(session) { killed ->
+                killed.copy(shellSpec = killed.shellSpec.copy(arguments = listOf("--restarted")))
+            }
+
+            assertEquals(iTermuxSessionState.READY, recovered.state)
+            assertEquals(
+                listOf(
+                    "recoverable-session" to iTermuxSessionState.STARTING,
+                    "recoverable-session" to iTermuxSessionState.RUNNING,
+                    "recoverable-session" to iTermuxSessionState.KILLED_BY_OS,
+                    "recoverable-session" to iTermuxSessionState.RECOVERING,
+                    "recoverable-session" to iTermuxSessionState.READY,
+                ),
+                sessionStates,
+            )
+        } finally {
+            iTermux.removeLifecycleListener(listener)
+        }
+    }
+
+    private fun readyRuntime(prefix: String): iTermuxRuntime {
+        val initial = iTermuxRuntimeInitializer.initialize(
+            filesDir = Files.createTempDirectory(prefix).toFile().absolutePath,
+            hostPackageName = "com.darkian.host",
+        )
+        File(initial.paths.binDir).mkdirs()
+        File(initial.paths.binDir, "sh").writeText("#!/bin/sh\necho ready\n")
+        File(initial.paths.etcDir).mkdirs()
+        File(initial.paths.etcDir, "profile").writeText("export TERM=xterm-256color\n")
+        return iTermuxRuntimeInitializer.refresh(
+            identity = initial.identity,
+            paths = initial.paths,
+            supportedPackages = initial.supportedPackages,
+            isProotEnabled = initial.isProotEnabled,
+            supportedAbis = initial.supportedAbis,
+            bootstrapAssetPath = initial.bootstrapAssetPath,
+            bootstrapVariantAbi = initial.bootstrapVariantAbi,
+            isBootstrapPayloadPackaged = initial.isBootstrapPayloadPackaged,
+        )
     }
 }

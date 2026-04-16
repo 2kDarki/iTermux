@@ -67,6 +67,22 @@ fun iTermuxRuntime.createSession(
     workingDirectory: String = defaultWorkingDirectory,
     failSafe: Boolean = false,
 ): iTermuxSession {
+    val availabilityFailure = sessionStartFailureCause()
+    if (availabilityFailure != null) {
+        return failedSession(
+            sessionId = sessionId,
+            backend = iTermuxSessionBackends.NATIVE,
+            mode = iTermuxSessionMode.LOGIN_SHELL,
+            shellSpec = iTermuxShellSpec(
+                executable = "${paths.binDir}/$shellBinary",
+                arguments = emptyList(),
+                workingDirectory = workingDirectory,
+                environment = environment,
+            ),
+            failureCause = availabilityFailure,
+        )
+    }
+
     return iTermuxSession(
         id = sessionId,
         backend = iTermuxSessionBackends.NATIVE,
@@ -90,6 +106,22 @@ fun iTermuxRuntime.createCommandSession(
     workingDirectory: String = defaultWorkingDirectory,
     failSafe: Boolean = false,
 ): iTermuxSession {
+    val availabilityFailure = sessionStartFailureCause()
+    if (availabilityFailure != null) {
+        return failedSession(
+            sessionId = sessionId,
+            backend = iTermuxSessionBackends.NATIVE,
+            mode = iTermuxSessionMode.COMMAND,
+            shellSpec = iTermuxShellSpec(
+                executable = executable,
+                arguments = arguments,
+                workingDirectory = workingDirectory,
+                environment = environment,
+            ),
+            failureCause = availabilityFailure,
+        )
+    }
+
     return iTermuxSession(
         id = sessionId,
         backend = iTermuxSessionBackends.NATIVE,
@@ -114,6 +146,22 @@ fun iTermuxRuntime.createFileSession(
     workingDirectory: String = defaultWorkingDirectory,
     failSafe: Boolean = false,
 ): iTermuxSession {
+    val availabilityFailure = sessionStartFailureCause()
+    if (availabilityFailure != null) {
+        return failedSession(
+            sessionId = sessionId,
+            backend = iTermuxSessionBackends.NATIVE,
+            mode = iTermuxSessionMode.FILE_COMMAND,
+            shellSpec = iTermuxShellSpec(
+                executable = executable,
+                arguments = arguments,
+                workingDirectory = workingDirectory,
+                environment = environment,
+            ),
+            failureCause = availabilityFailure,
+        )
+    }
+
     return iTermuxSession(
         id = sessionId,
         backend = iTermuxSessionBackends.NATIVE,
@@ -126,5 +174,30 @@ fun iTermuxRuntime.createFileSession(
             workingDirectory = workingDirectory,
             failSafe = failSafe,
         ),
+    )
+}
+
+fun iTermuxRuntime.sessionStartFailureCause(): iTermuxRuntimeFailureCause? {
+    return when (bootstrapState) {
+        iTermuxBootstrapState.READY -> null
+        iTermuxBootstrapState.DEGRADED -> failureCause ?: iTermuxRuntimeFailureCause.ENVIRONMENT_DEGRADED
+        else -> failureCause ?: iTermuxRuntimeFailureCause.SESSION_START_FAILED
+    }
+}
+
+private fun failedSession(
+    sessionId: String,
+    backend: iTermuxSessionBackend,
+    mode: iTermuxSessionMode,
+    shellSpec: iTermuxShellSpec,
+    failureCause: iTermuxRuntimeFailureCause,
+): iTermuxSession {
+    return iTermuxSession(
+        id = sessionId,
+        backend = backend,
+        mode = mode,
+        shellSpec = shellSpec,
+        state = iTermuxSessionState.DEAD,
+        failureCause = failureCause,
     )
 }

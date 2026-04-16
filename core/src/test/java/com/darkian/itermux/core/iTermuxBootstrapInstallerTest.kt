@@ -45,38 +45,51 @@ class iTermuxBootstrapInstallerTest {
     }
 
     @Test
-    fun rejectsTraversalEntriesDuringBootstrapExtraction() {
+    fun rejectsTraversalEntriesDuringBootstrapExtractionWithNamedFailureState() {
         val runtime = iTermuxRuntimeInitializer.initialize(
             filesDir = Files.createTempDirectory("itermux-bootstrap-traversal").toFile().absolutePath,
             hostPackageName = "com.darkian.host",
             isBootstrapPayloadPackaged = true,
         )
 
-        val error = runCatching {
-            iTermux.installBootstrap(runtime) {
-                ByteArrayInputStream(
-                    bootstrapArchive(
-                        "../escape" to "nope\n",
-                    ),
-                )
-            }
-        }.exceptionOrNull()
+        val failed = iTermux.installBootstrap(runtime) {
+            ByteArrayInputStream(
+                bootstrapArchive(
+                    "../escape" to "nope\n",
+                ),
+            )
+        }
 
-        checkNotNull(error)
-        assertTrue(error is IllegalStateException)
-        assertTrue(error.message!!.contains("outside"))
+        assertEquals(iTermuxBootstrapState.FAILED, failed.bootstrapState)
+        assertEquals(iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED, failed.failureCause)
     }
 
     @Test
-    fun requiresPackagedPayloadWhenBootstrapIsStillNeeded() {
+    fun returnsNamedFailureStateWhenPayloadIsMissing() {
         val runtime = iTermuxRuntimeInitializer.initialize(
             filesDir = Files.createTempDirectory("itermux-bootstrap-missing").toFile().absolutePath,
             hostPackageName = "com.darkian.host",
             isBootstrapPayloadPackaged = false,
         )
 
+        val failed = iTermux.installBootstrap(runtime) {
+            ByteArrayInputStream(ByteArray(0))
+        }
+
+        assertEquals(iTermuxBootstrapState.FAILED, failed.bootstrapState)
+        assertEquals(iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED, failed.failureCause)
+    }
+
+    @Test
+    fun requiresPackagedPayloadWhenBootstrapIsStillNeededAtInstallerLevel() {
+        val runtime = iTermuxRuntimeInitializer.initialize(
+            filesDir = Files.createTempDirectory("itermux-bootstrap-missing-installer").toFile().absolutePath,
+            hostPackageName = "com.darkian.host",
+            isBootstrapPayloadPackaged = false,
+        )
+
         val error = runCatching {
-            iTermux.installBootstrap(runtime) {
+            iTermuxBootstrapInstaller.install(runtime) {
                 ByteArrayInputStream(ByteArray(0))
             }
         }.exceptionOrNull()

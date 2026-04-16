@@ -109,33 +109,102 @@ object iTermux {
         workingDirectory: String = runtime.defaultWorkingDirectory,
         failSafe: Boolean = false,
     ): iTermuxSession {
-        iTermuxLifecycleRegistry.dispatchSessionState(
+        return iTermuxSessionController.start(
             sessionId = sessionId,
-            state = iTermuxSessionState.STARTING,
+            stateObserver = iTermuxLifecycleRegistry::dispatchSessionState,
+            sessionFactory = {
+                runtime.createSession(
+                    sessionId = sessionId,
+                    shellBinary = shellBinary,
+                    baseEnv = baseEnv,
+                    extraEnv = extraEnv,
+                    workingDirectory = workingDirectory,
+                    failSafe = failSafe,
+                )
+            },
+            failureSessionFactory = {
+                iTermuxSession(
+                    id = sessionId,
+                    backend = iTermuxSessionBackends.NATIVE,
+                    mode = iTermuxSessionMode.LOGIN_SHELL,
+                    shellSpec = iTermuxShellSpec(
+                        executable = "${runtime.paths.binDir}/$shellBinary",
+                        arguments = emptyList(),
+                        workingDirectory = workingDirectory,
+                        environment = runtime.environment,
+                    ),
+                    state = iTermuxSessionState.DEAD,
+                    failureCause = iTermuxRuntimeFailureCause.SESSION_START_FAILED,
+                )
+            },
         )
-        val session = runtime.createSession(
-            sessionId = sessionId,
-            shellBinary = shellBinary,
-            baseEnv = baseEnv,
-            extraEnv = extraEnv,
-            workingDirectory = workingDirectory,
-            failSafe = failSafe,
+    }
+
+    fun suspendSession(session: iTermuxSession): iTermuxSession {
+        return iTermuxSessionController.suspend(
+            session = session,
+            stateObserver = iTermuxLifecycleRegistry::dispatchSessionState,
         )
-        iTermuxLifecycleRegistry.dispatchSessionState(
-            sessionId = sessionId,
-            state = iTermuxSessionState.RUNNING,
+    }
+
+    fun resumeSession(session: iTermuxSession): iTermuxSession {
+        return iTermuxSessionController.resume(
+            session = session,
+            stateObserver = iTermuxLifecycleRegistry::dispatchSessionState,
         )
-        return session
+    }
+
+    fun recoverSessionFromOsKill(
+        session: iTermuxSession,
+        restartSession: (iTermuxSession) -> iTermuxSession?,
+    ): iTermuxSession {
+        return iTermuxSessionController.recoverFromOsKill(
+            session = session,
+            restartSession = restartSession,
+            stateObserver = iTermuxLifecycleRegistry::dispatchSessionState,
+        )
     }
 
     fun installBootstrap(
         runtime: iTermuxRuntime,
         openPayload: () -> InputStream,
     ): iTermuxRuntime {
-        return iTermuxBootstrapInstaller.install(
-            runtime = runtime,
-            openPayload = openPayload,
+        val result = runCatching {
+            iTermuxBootstrapInstaller.install(
+                runtime = runtime,
+                openPayload = openPayload,
+            )
+        }.getOrElse {
+            runtime.copy(
+                bootstrapState = iTermuxBootstrapState.FAILED,
+                failureCause = iTermuxRuntimeFailureCause.BOOTSTRAP_EXTRACTION_FAILED,
+                degradedCause = null,
+            )
+        }
+
+        iTermuxLifecycleRegistry.dispatchBootstrapState(
+            state = result.bootstrapState,
+            cause = result.failureCause,
         )
+        when (result.bootstrapState) {
+            iTermuxBootstrapState.READY -> {
+                iTermuxLifecycleRegistry.dispatchEnvironmentValidation(
+                    result = iTermuxEnvironmentValidationResult.VALID,
+                    cause = null,
+                )
+            }
+
+            iTermuxBootstrapState.DEGRADED -> {
+                iTermuxLifecycleRegistry.dispatchEnvironmentValidation(
+                    result = iTermuxEnvironmentValidationResult.DEGRADED,
+                    cause = result.degradedCause,
+                )
+            }
+
+            else -> Unit
+        }
+
+        return result
     }
 
     fun installPackagedBootstrap(

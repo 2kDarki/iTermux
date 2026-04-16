@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
 import com.darkian.itermux.core.iTermux
+import com.darkian.itermux.core.iTermuxConfig
 import com.darkian.itermux.proot.createProotSession
 import com.darkian.itermux.proot.iTermuxProotDistribution
 import java.io.File
@@ -12,7 +13,10 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val runtime = iTermux.initialize(this)
+        val runtime = iTermux.initialize(
+            this,
+            config = iTermuxConfig(prootEnabled = true),
+        )
         val nativeSession = iTermux.createSession(runtime, sessionId = "sample")
         val prootSession = runtime.createProotSession(
             distribution = iTermuxProotDistribution(
@@ -56,12 +60,20 @@ class MainActivity : Activity() {
             append(nativeSession.backend.id)
             append("\nnativeSessionMode: ")
             append(nativeSession.mode)
+            append("\nnativeSessionState: ")
+            append(nativeSession.state)
+            append("\nnativeFailureCause: ")
+            append(nativeSession.failureCause ?: "<none>")
             append("\nnativeExecutable: ")
             append(nativeSession.shellSpec.executable)
             append("\nprootSessionId: ")
             append(prootSession.id)
             append("\nprootBackend: ")
             append(prootSession.backend.id)
+            append("\nprootSessionState: ")
+            append(prootSession.state)
+            append("\nprootFailureCause: ")
+            append(prootSession.failureCause ?: "<none>")
             append("\nprootExecutable: ")
             append(prootSession.shellSpec.executable)
             append("\nprootArguments: ")
